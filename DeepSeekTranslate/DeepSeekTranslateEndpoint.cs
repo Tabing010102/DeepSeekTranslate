@@ -79,6 +79,10 @@ namespace DeepSeekTranslate
             {
                 _maxConcurrency = 1;
             }
+            if (ServicePointManager.DefaultConnectionLimit < _maxConcurrency)
+            {
+                ServicePointManager.DefaultConnectionLimit = _maxConcurrency;
+            }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "CoroutineWaitCountBeforeRead", "150"), out _coroutineWaitCountBeforeRead) || _coroutineWaitCountBeforeRead < 0)
             {
                 _coroutineWaitCountBeforeRead = 150;
