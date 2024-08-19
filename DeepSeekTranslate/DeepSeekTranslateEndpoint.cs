@@ -8,6 +8,7 @@ using XUnity.AutoTranslator.Plugin.Core.Endpoints;
 using System.IO;
 using SimpleJSON;
 using XUnity.AutoTranslator.Plugin.Core.Web;
+using System.Threading;
 
 namespace DeepSeekTranslate
 {
@@ -45,6 +46,9 @@ namespace DeepSeekTranslate
         private string _apiKey;
         private int _maxConcurrency;
         private int _coroutineWaitCountBeforeRead;
+        private bool _useThreadPool;
+        private int _minThreadCount;
+        private int _maxThreadCount;
 
         public string Id => "DeepSeekTranslate";
 
@@ -86,6 +90,25 @@ namespace DeepSeekTranslate
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "CoroutineWaitCountBeforeRead", "150"), out _coroutineWaitCountBeforeRead) || _coroutineWaitCountBeforeRead < 0)
             {
                 _coroutineWaitCountBeforeRead = 150;
+            }
+            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "UseThreadPool", "true"), out _useThreadPool))
+            {
+                _useThreadPool = true;
+            }
+            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MinThreadCount", ""), out _minThreadCount) || _minThreadCount <= 0)
+            {
+                _minThreadCount = Environment.ProcessorCount * 2;
+            }
+            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxThreadCount", ""), out _maxThreadCount) || _maxThreadCount <= 0)
+            {
+                _maxThreadCount = Environment.ProcessorCount * 4;
+            }
+            if (_useThreadPool)
+            {
+                ThreadPool.GetMinThreads(out int minWorkerThreads, out int minCompletionPortThreads);
+                ThreadPool.GetMaxThreads(out int maxWorkerThreads, out int maxCompletionPortThreads);
+                ThreadPool.SetMinThreads(Math.Max(maxWorkerThreads, _minThreadCount), Math.Max(maxCompletionPortThreads, _minThreadCount));
+                ThreadPool.SetMaxThreads(Math.Max(maxWorkerThreads, _maxThreadCount), Math.Max(maxCompletionPortThreads, _maxThreadCount));
             }
         }
 
@@ -130,7 +153,6 @@ namespace DeepSeekTranslate
                 new PromptMessage("user", userTrPrompt)
             });
             var promptBytes = Encoding.UTF8.GetBytes(prompt);
-
             // create request
             var request = (HttpWebRequest)WebRequest.Create(new Uri(_endpoint));
             request.PreAuthenticate = true;
@@ -142,33 +164,67 @@ namespace DeepSeekTranslate
             {
                 requestStream.Write(promptBytes, 0, promptBytes.Length);
             }
-            // execute request
-            var asyncResult = request.BeginGetResponse(null, null);
-            // wait for completion
-            while (!asyncResult.IsCompleted)
+
+            if (!_useThreadPool)
             {
-                yield return null;
-            }
-            string responseText;
-            for (int i = 0; i < _coroutineWaitCountBeforeRead; i++)
-            {
-                yield return null;
-            }
-            using (var response = request.EndGetResponse(asyncResult))
-            {
-                using (var responseStream = response.GetResponseStream())
+                // execute request
+                var asyncResult = request.BeginGetResponse(null, null);
+                // wait for completion
+                while (!asyncResult.IsCompleted)
                 {
-                    using (var reader = new StreamReader(responseStream))
+                    yield return null;
+                }
+                string responseText;
+                for (int i = 0; i < _coroutineWaitCountBeforeRead; i++)
+                {
+                    yield return null;
+                }
+                using (var response = request.EndGetResponse(asyncResult))
+                {
+                    using (var responseStream = response.GetResponseStream())
                     {
-                        responseText = reader.ReadToEnd();
+                        using (var reader = new StreamReader(responseStream))
+                        {
+                            responseText = reader.ReadToEnd();
+                        }
                     }
                 }
-            }
 
-            var jsonObj = JSON.Parse(responseText);
-            var respMsg = jsonObj.AsObject["choices"].AsArray[0]["message"];
-            var translatedLine = JSON.Parse(respMsg["content"])["0"].ToString().Trim('\"');
-            translatedTextBuilder.AppendLine(translatedLine);
+                var jsonObj = JSON.Parse(responseText);
+                var respMsg = jsonObj.AsObject["choices"].AsArray[0]["message"];
+                var translatedLine = JSON.Parse(respMsg["content"])["0"].ToString().Trim('\"');
+                translatedTextBuilder.AppendLine(translatedLine);
+            }
+            else
+            {
+                bool isCompleted = false;
+                ThreadPool.QueueUserWorkItem((state) =>
+                {
+                    // get response
+                    string responseText;
+                    using (var response = request.GetResponse())
+                    {
+                        using (var responseStream = response.GetResponseStream())
+                        {
+                            using (var reader = new StreamReader(responseStream))
+                            {
+                                responseText = reader.ReadToEnd();
+                            }
+                        }
+                    }
+                    var jsonObj = JSON.Parse(responseText);
+                    var respMsg = jsonObj.AsObject["choices"].AsArray[0]["message"];
+                    var translatedLine = JSON.Parse(respMsg["content"])["0"].ToString().Trim('\"');
+                    translatedTextBuilder.AppendLine(translatedLine);
+
+                    isCompleted = true;
+                });
+
+                while (!isCompleted)
+                {
+                    yield return null;
+                }
+            }
         }
     }
 }
