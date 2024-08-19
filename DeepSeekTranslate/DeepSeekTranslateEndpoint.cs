@@ -44,6 +44,7 @@ namespace DeepSeekTranslate
         private string _endpoint;
         private string _apiKey;
         private int _maxConcurrency;
+        private int _coroutineWaitCountBeforeRead;
 
         public string Id => "DeepSeekTranslate";
 
@@ -78,6 +79,10 @@ namespace DeepSeekTranslate
             {
                 _maxConcurrency = 1;
             }
+            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "CoroutineWaitCountBeforeRead", "150"), out _coroutineWaitCountBeforeRead) || _coroutineWaitCountBeforeRead < 0)
+            {
+                _coroutineWaitCountBeforeRead = 150;
+            }
         }
 
         public IEnumerator Translate(ITranslationContext context)
@@ -93,7 +98,6 @@ namespace DeepSeekTranslate
                     var translateLineCoroutine = TranslateLine(line, translatedTextBuilder);
                     while (translateLineCoroutine.MoveNext())
                     {
-                        Console.WriteLine($"[DeepSeekTranslate.Translate] Wait for translateLineCoroutine.MoveNext(), line = {line}");
                         yield return null;
                     }
                 }
@@ -122,7 +126,6 @@ namespace DeepSeekTranslate
                 new PromptMessage("user", userTrPrompt)
             });
             var promptBytes = Encoding.UTF8.GetBytes(prompt);
-            Console.WriteLine($"[DeepSeekTranslate.TranslateLine] Constructed promptBytes, line = {line}");
 
             // create request
             var request = (HttpWebRequest)WebRequest.Create(new Uri(_endpoint));
@@ -136,15 +139,17 @@ namespace DeepSeekTranslate
                 requestStream.Write(promptBytes, 0, promptBytes.Length);
             }
             // execute request
-            Console.WriteLine($"[DeepSeekTranslate.TranslateLine] Before BeginGetResponse, line = {line}");
             var asyncResult = request.BeginGetResponse(null, null);
-            Console.WriteLine($"[DeepSeekTranslate.TranslateLine] BeginGetResponse got asyncResult, line = {line}");
             // wait for completion
             while (!asyncResult.IsCompleted)
             {
                 yield return null;
             }
             string responseText;
+            for (int i = 0; i < _coroutineWaitCountBeforeRead; i++)
+            {
+                yield return null;
+            }
             using (var response = request.EndGetResponse(asyncResult))
             {
                 using (var responseStream = response.GetResponseStream())
@@ -160,7 +165,6 @@ namespace DeepSeekTranslate
             var respMsg = jsonObj.AsObject["choices"].AsArray[0]["message"];
             var translatedLine = JSON.Parse(respMsg["content"])["0"].ToString().Trim('\"');
             translatedTextBuilder.AppendLine(translatedLine);
-            Console.WriteLine($"[DeepSeekTranslate.TranslateLine] Translated {line} -> {translatedLine}");
         }
     }
 }
