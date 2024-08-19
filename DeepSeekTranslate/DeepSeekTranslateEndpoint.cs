@@ -1,14 +1,12 @@
-﻿using System;
+﻿using SimpleJSON;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Net;
 using System.Text;
-using XUnity.AutoTranslator.Plugin.Core.Endpoints;
-using System.IO;
-using SimpleJSON;
-using XUnity.AutoTranslator.Plugin.Core.Web;
 using System.Threading;
+using XUnity.AutoTranslator.Plugin.Core.Endpoints;
 
 namespace DeepSeekTranslate
 {
@@ -45,6 +43,8 @@ namespace DeepSeekTranslate
         private string _endpoint;
         private string _apiKey;
         private int _maxConcurrency;
+        private bool _batchTranslate;
+        private int _maxTranslationsPerRequest;
         private int _coroutineWaitCountBeforeRead;
         private bool _useThreadPool;
         private int _minThreadCount;
@@ -56,7 +56,7 @@ namespace DeepSeekTranslate
 
         public int MaxConcurrency => _maxConcurrency;
 
-        public int MaxTranslationsPerRequest => 1;
+        public int MaxTranslationsPerRequest => _maxTranslationsPerRequest;
 
         private string FixLanguage(string lang)
         {
@@ -79,30 +79,15 @@ namespace DeepSeekTranslate
 
             _endpoint = context.GetOrCreateSetting<string>("DeepSeek", "Endpoint", "https://api.deepseek.com/chat/completions");
             _apiKey = context.GetOrCreateSetting<string>("DeepSeek", "ApiKey", "YOUR_API_KEY_HERE");
-            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxConcurrency", "1"), out _maxConcurrency) || _maxConcurrency < 1)
-            {
-                _maxConcurrency = 1;
-            }
-            if (ServicePointManager.DefaultConnectionLimit < _maxConcurrency)
-            {
-                ServicePointManager.DefaultConnectionLimit = _maxConcurrency;
-            }
-            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "CoroutineWaitCountBeforeRead", "150"), out _coroutineWaitCountBeforeRead) || _coroutineWaitCountBeforeRead < 0)
-            {
-                _coroutineWaitCountBeforeRead = 150;
-            }
-            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "UseThreadPool", "true"), out _useThreadPool))
-            {
-                _useThreadPool = true;
-            }
-            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MinThreadCount", ""), out _minThreadCount) || _minThreadCount <= 0)
-            {
-                _minThreadCount = Environment.ProcessorCount * 2;
-            }
-            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxThreadCount", ""), out _maxThreadCount) || _maxThreadCount <= 0)
-            {
-                _maxThreadCount = Environment.ProcessorCount * 4;
-            }
+            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxConcurrency", "1"), out _maxConcurrency) || _maxConcurrency < 1) { _maxConcurrency = 1; }
+            if (ServicePointManager.DefaultConnectionLimit < _maxConcurrency) { ServicePointManager.DefaultConnectionLimit = _maxConcurrency; }
+            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "BatchTranslate", "false"), out _batchTranslate)) { _batchTranslate = false; }
+            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxTranslationsPerRequest", "1"), out _maxTranslationsPerRequest) || _maxTranslationsPerRequest < 1) { _maxTranslationsPerRequest = 1; }
+            if (!_batchTranslate) { _maxTranslationsPerRequest = 1; }
+            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "CoroutineWaitCountBeforeRead", "150"), out _coroutineWaitCountBeforeRead) || _coroutineWaitCountBeforeRead < 0) { _coroutineWaitCountBeforeRead = 150; }
+            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "UseThreadPool", "true"), out _useThreadPool)) { _useThreadPool = true; }
+            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MinThreadCount", ""), out _minThreadCount) || _minThreadCount <= 0) { _minThreadCount = Environment.ProcessorCount * 2; }
+            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxThreadCount", ""), out _maxThreadCount) || _maxThreadCount <= 0) { _maxThreadCount = Environment.ProcessorCount * 4; }
             if (_useThreadPool)
             {
                 ThreadPool.GetMinThreads(out int minWorkerThreads, out int minCompletionPortThreads);
@@ -118,19 +103,49 @@ namespace DeepSeekTranslate
             // split text into lines
             var lines = untranslatedText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
             var translatedTextBuilder = new StringBuilder();
-            foreach (var line in lines)
+
+            // batch translate force use thread pool
+            if (_batchTranslate && _useThreadPool)
             {
-                if (!string.IsNullOrEmpty(line))
+                var emptyLines = new HashSet<int>();
+                int lineCount = 0;
+                var trJsonStrBuilder = new StringBuilder();
+                for (int i = 0; i < lines.Length; i++)
                 {
-                    var translateLineCoroutine = TranslateLine(line, translatedTextBuilder);
-                    while (translateLineCoroutine.MoveNext())
+                    if (string.IsNullOrEmpty(lines[i]))
                     {
-                        yield return null;
+                        emptyLines.Add(i);
+                    }
+                    else
+                    {
+                        trJsonStrBuilder.Append($"\"{i}\": \"{lines[i]}\",\n");
+                        lineCount++;
                     }
                 }
-                else
+                trJsonStrBuilder.Remove(trJsonStrBuilder.Length - 2, 2);
+                var translateBatchCoroutine = TranslateBatch(trJsonStrBuilder.ToString(), lineCount, lines.Length, emptyLines, translatedTextBuilder);
+                while (translateBatchCoroutine.MoveNext())
                 {
-                    translatedTextBuilder.AppendLine();
+                    yield return null;
+                }
+            }
+            // per line translate
+            else
+            {
+                foreach (var line in lines)
+                {
+                    if (!string.IsNullOrEmpty(line))
+                    {
+                        var translateLineCoroutine = TranslateLine(line, translatedTextBuilder);
+                        while (translateLineCoroutine.MoveNext())
+                        {
+                            yield return null;
+                        }
+                    }
+                    else
+                    {
+                        translatedTextBuilder.AppendLine();
+                    }
                 }
             }
 
@@ -224,6 +239,76 @@ namespace DeepSeekTranslate
                 {
                     yield return null;
                 }
+            }
+        }
+
+        private IEnumerator TranslateBatch(string trJsonStr, int lineCount, int totalLineCount, HashSet<int> emptyLines, StringBuilder translatedTextBuilder)
+        {
+            // create prompt
+            var userTrPrompt = $"###这是你接下来的翻译任务，原文文本如下###\n" +
+                $"```json\n" +
+                $"{{{trJsonStr}}}\n" +
+                $"```";
+            var prompt = MakePromptStr(new List<PromptMessage>
+            {
+                new PromptMessage("system", _sysPromptStr),
+                new PromptMessage("user", _trUserExampleStr),
+                new PromptMessage("assistant", _trAssistantExampleStr),
+                new PromptMessage("user", userTrPrompt)
+            });
+            var promptBytes = Encoding.UTF8.GetBytes(prompt);
+            // create request
+            var request = (HttpWebRequest)WebRequest.Create(new Uri(_endpoint));
+            request.PreAuthenticate = true;
+            request.Headers.Add("Authorization", "Bearer " + _apiKey);
+            request.ContentType = "application/json";
+            request.Accept = "application/json";
+            request.Method = "POST";
+            using (var requestStream = request.GetRequestStream())
+            {
+                requestStream.Write(promptBytes, 0, promptBytes.Length);
+            }
+
+            bool isCompleted = false;
+            ThreadPool.QueueUserWorkItem((state) =>
+            {
+                // get response
+                string responseText;
+                using (var response = request.GetResponse())
+                {
+                    using (var responseStream = response.GetResponseStream())
+                    {
+                        using (var reader = new StreamReader(responseStream))
+                        {
+                            responseText = reader.ReadToEnd();
+                        }
+                    }
+                }
+                var jsonObj = JSON.Parse(responseText);
+                var respMsg = jsonObj.AsObject["choices"].AsArray[0]["message"];
+                var contents = JSON.Parse(respMsg["content"]);
+                if (contents.Count != lineCount)
+                {
+                    throw new Exception("The number of translated lines does not match the number of lines to be translated.");
+                }
+                for (int i = 0; i < totalLineCount; i++)
+                {
+                    if (emptyLines.Contains(i))
+                    {
+                        translatedTextBuilder.AppendLine();
+                    }
+                    else
+                    {
+                        translatedTextBuilder.AppendLine(contents[i.ToString()].ToString().Trim('\"'));
+                    }
+                }
+
+                isCompleted = true;
+            });
+
+            while (!isCompleted)
+            {
+                yield return null;
             }
         }
     }
