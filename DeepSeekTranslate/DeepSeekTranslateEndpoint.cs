@@ -14,7 +14,7 @@ namespace DeepSeekTranslate
 {
     public partial class DeepSeekTranslateEndpoint : ITranslateEndpoint
     {
-        private const bool _debug = true;
+        private const bool DEBUG = false;
 
         private string _srcLangShort;
         private string _srcLang;
@@ -115,7 +115,7 @@ namespace DeepSeekTranslate
             // batch translate force use thread pool
             if (_batchTranslate && _useThreadPool)
             {
-                if (_debug)
+                if (DEBUG)
                 {
                     Console.WriteLine($"Translate: context={{{string.Join(", ", context.UntranslatedTexts)}}}");
                 }
@@ -162,7 +162,7 @@ namespace DeepSeekTranslate
                     translatedTexts[i] = translatedTextBuilders[i].ToString();
                 }
 
-                if (_debug)
+                if (DEBUG)
                 {
                     Console.WriteLine($"Translate: translatedTexts={{{string.Join(", ", translatedTexts)}}}");
                 }
@@ -289,7 +289,7 @@ namespace DeepSeekTranslate
         private IEnumerator TranslateBatch(string trJsonStr, int lineCount, int totalLineCount, Dictionary<int, int> lineNumberDict,
             Dictionary<int, int> textLineDict, StringBuilder[] translatedTextBuilders)
         {
-            if (_debug)
+            if (DEBUG)
             {
                 var lineNumberDictStr = string.Join(", ", lineNumberDict.Select(kv => $"{kv.Key}->{kv.Value}").ToArray());
                 var textLineDictStr = string.Join(", ", textLineDict.Select(kv => $"{kv.Key}->{kv.Value}").ToArray());
@@ -308,7 +308,7 @@ namespace DeepSeekTranslate
                 new PromptMessage("assistant", _trAssistantExampleStr),
                 new PromptMessage("user", userTrPrompt)
             });
-            if (_debug) { Console.WriteLine($"TranslateBatch: prompt={{{prompt}}}"); }
+            if (DEBUG) { Console.WriteLine($"TranslateBatch: prompt={{{prompt}}}"); }
             var promptBytes = Encoding.UTF8.GetBytes(prompt);
             // create request
             var request = (HttpWebRequest)WebRequest.Create(new Uri(_endpoint));
@@ -321,14 +321,14 @@ namespace DeepSeekTranslate
             {
                 requestStream.Write(promptBytes, 0, promptBytes.Length);
             }
-            if (_debug) { Console.WriteLine($"TranslateBatch: request filled"); }
+            if (DEBUG) { Console.WriteLine($"TranslateBatch: request filled"); }
 
             bool isCompleted = false;
             ThreadPool.QueueUserWorkItem((state) =>
             {
                 // get response
                 string responseText;
-                if (_debug) { Console.WriteLine($"TranslateBatch: sending request"); }
+                if (DEBUG) { Console.WriteLine($"TranslateBatch: sending request"); }
                 using (var response = request.GetResponse())
                 {
                     using (var responseStream = response.GetResponseStream())
@@ -339,11 +339,11 @@ namespace DeepSeekTranslate
                         }
                     }
                 }
-                if (_debug) { Console.WriteLine($"TranslateBatch: responseText={{{responseText}}}"); }
+                if (DEBUG) { Console.WriteLine($"TranslateBatch: responseText={{{responseText}}}"); }
                 var jsonObj = JSON.Parse(responseText);
                 var respMsg = jsonObj.AsObject["choices"].AsArray[0]["message"];
                 var contents = JSON.Parse(respMsg["content"]);
-                if (_debug) { Console.WriteLine($"TranslateBatch: contents.Count={{{contents.Count}}}, lineCount={{{lineCount}}}"); }
+                if (DEBUG) { Console.WriteLine($"TranslateBatch: contents.Count={{{contents.Count}}}, lineCount={{{lineCount}}}"); }
                 if (contents.Count != lineCount)
                 {
                     throw new Exception("The number of translated lines does not match the number of lines to be translated.");
@@ -352,21 +352,21 @@ namespace DeepSeekTranslate
                 for (int i = 0; i < totalLineCount; i++)
                 {
                     if (textLineDict.ContainsKey(i)) { textPos = textLineDict[i]; }
-                    if (_debug) { Console.WriteLine($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}"); }
+                    if (DEBUG) { Console.WriteLine($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}"); }
                     if (!lineNumberDict.ContainsKey(i))
                     {
                         translatedTextBuilders[textPos].AppendLine();
                     }
                     else
                     {
-                        if (_debug) { Console.WriteLine($"TranslateBatch: i={{{i}}}, lineNumberDict[i]={{{lineNumberDict[i]}}}, contents[lineNumberDict[i]]={{{contents[lineNumberDict[i].ToString()].ToString().Trim('\"')}}}"); }
+                        if (DEBUG) { Console.WriteLine($"TranslateBatch: i={{{i}}}, lineNumberDict[i]={{{lineNumberDict[i]}}}, contents[lineNumberDict[i]]={{{contents[lineNumberDict[i].ToString()].ToString().Trim('\"')}}}"); }
                         translatedTextBuilders[textPos].AppendLine(contents[lineNumberDict[i].ToString()].ToString().Trim('\"'));
-                        if (_debug) { Console.WriteLine($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}, translatedTextBuilders[textPos]={{{translatedTextBuilders[textPos].ToString()}}}"); }
+                        if (DEBUG) { Console.WriteLine($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}, translatedTextBuilders[textPos]={{{translatedTextBuilders[textPos].ToString()}}}"); }
                     }
                 }
 
                 isCompleted = true;
-                if (_debug) { Console.WriteLine($"TranslateBatch: translatedTexts={{{string.Join(", ", translatedTextBuilders.Select(tb => tb.ToString()).ToArray())}}}"); }
+                if (DEBUG) { Console.WriteLine($"TranslateBatch: translatedTexts={{{string.Join(", ", translatedTextBuilders.Select(tb => tb.ToString()).ToArray())}}}"); }
             });
 
             while (!isCompleted)
