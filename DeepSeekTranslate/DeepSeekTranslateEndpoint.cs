@@ -12,7 +12,7 @@ namespace DeepSeekTranslate
 {
     public partial class DeepSeekTranslateEndpoint : ITranslateEndpoint
     {
-        private static readonly HashSet<string> SupportedLanguagePairs = new HashSet<string> { "ja-zh" };
+        private static readonly HashSet<string> _supportedLanguagePairs = new HashSet<string> { "ja-zh" };
 
         private static readonly string _dstLangShort = "中";
         private static readonly string _dstLang = "简中";
@@ -75,7 +75,7 @@ namespace DeepSeekTranslate
         public void Initialize(IInitializationContext context)
         {
             var model = FixLanguage(context.SourceLanguage) + "-" + FixLanguage(context.DestinationLanguage);
-            if (!SupportedLanguagePairs.Contains(model)) throw new EndpointInitializationException($"The language model '{model}' is not supported.");
+            if (!_supportedLanguagePairs.Contains(model)) throw new EndpointInitializationException($"The language model '{model}' is not supported.");
 
             _endpoint = context.GetOrCreateSetting<string>("DeepSeek", "Endpoint", "https://api.deepseek.com/chat/completions");
             _apiKey = context.GetOrCreateSetting<string>("DeepSeek", "ApiKey", "YOUR_API_KEY_HERE");
@@ -92,7 +92,7 @@ namespace DeepSeekTranslate
             {
                 ThreadPool.GetMinThreads(out int minWorkerThreads, out int minCompletionPortThreads);
                 ThreadPool.GetMaxThreads(out int maxWorkerThreads, out int maxCompletionPortThreads);
-                ThreadPool.SetMinThreads(Math.Max(maxWorkerThreads, _minThreadCount), Math.Max(maxCompletionPortThreads, _minThreadCount));
+                ThreadPool.SetMinThreads(Math.Max(minWorkerThreads, _minThreadCount), Math.Max(minCompletionPortThreads, _minThreadCount));
                 ThreadPool.SetMaxThreads(Math.Max(maxWorkerThreads, _maxThreadCount), Math.Max(maxCompletionPortThreads, _maxThreadCount));
             }
         }
