@@ -159,7 +159,7 @@ namespace DeepSeekTranslate
                 var translatedTexts = new string[untranslatedTexts.Length];
                 for (int i = 0; i < translatedTextBuilders.Length; i++)
                 {
-                    translatedTexts[i] = translatedTextBuilders[i].ToString().TrimEnd(Environment.NewLine.ToCharArray());
+                    translatedTexts[i] = translatedTextBuilders[i].ToString().TrimEnd('\r', '\n');
                 }
 
                 if (DEBUG)
@@ -192,7 +192,7 @@ namespace DeepSeekTranslate
                     }
                 }
 
-                var translatedText = translatedTextBuilder.ToString().TrimEnd(Environment.NewLine.ToCharArray());
+                var translatedText = translatedTextBuilder.ToString().TrimEnd('\r', '\n');
                 context.Complete(translatedText);
             }
         }
