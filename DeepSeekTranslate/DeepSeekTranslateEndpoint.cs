@@ -58,15 +58,15 @@ namespace DeepSeekTranslate
 
         public void Initialize(IInitializationContext context)
         {
-            if (!_supportedSrcLangs.Contains(context.SourceLanguage) || !_supportedDstLangs.Contains(context.DestinationLanguage))
+            if (!s_supportedSrcLangs.Contains(context.SourceLanguage) || !s_supportedDstLangs.Contains(context.DestinationLanguage))
             {
                 throw new EndpointInitializationException($"The language model '{context.SourceLanguage}-{context.DestinationLanguage}' is not supported.");
             }
             // init prompts
-            _srcLangShort = _langShortZhDict[FixLanguage(context.SourceLanguage)];
-            _srcLang = _langZhDict[FixLanguage(context.SourceLanguage)];
-            _dstLangShort = _langShortZhDict[FixLanguage(context.DestinationLanguage)];
-            _dstLang = _langZhDict[FixLanguage(context.DestinationLanguage)];
+            _srcLangShort = s_langShortZhDict[FixLanguage(context.SourceLanguage)];
+            _srcLang = s_langZhDict[FixLanguage(context.SourceLanguage)];
+            _dstLangShort = s_langShortZhDict[FixLanguage(context.DestinationLanguage)];
+            _dstLang = s_langZhDict[FixLanguage(context.DestinationLanguage)];
             _sysPromptStr =
                 $"你是一位真正的擅长{_dstLangShort}{_srcLangShort}文化的本地化专家，你需要将游戏中的{_srcLang}文本翻译成{_dstLang}。" +
                 $"当你接收到游戏文本后，请严格按照以下步骤进行翻译：\n" +
@@ -81,12 +81,12 @@ namespace DeepSeekTranslate
             _trUserExampleStr =
                 $"###这是你接下来的翻译任务，原文文本如下###\n" +
                 $"```json\n" +
-                $"{{\"0\": \"{_trExampleDict[FixLanguage(context.SourceLanguage)]}\"}}\n" +
+                $"{{\"0\": \"{s_trExampleDict[FixLanguage(context.SourceLanguage)]}\"}}\n" +
                 $"```";
             _trAssistantExampleStr =
                 $"我完全理解了您的要求，我将遵循你的指示进行翻译，以下是对原文的翻译:\n" +
                 $"```json\n" +
-                $"{{\"0\": \"{_trExampleDict[FixLanguage(context.DestinationLanguage)]}\"}}\n" +
+                $"{{\"0\": \"{s_trExampleDict[FixLanguage(context.DestinationLanguage)]}\"}}\n" +
                 $"```";
 
             // init settings

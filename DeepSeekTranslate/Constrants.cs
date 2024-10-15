@@ -8,9 +8,9 @@ namespace DeepSeekTranslate
 {
     public partial class DeepSeekTranslateEndpoint : ITranslateEndpoint
     {
-        private static readonly HashSet<string> _supportedSrcLangs = new HashSet<string> { "en", "ja", "ko", "ru", "zh", "zh-TW" };
-        private static readonly HashSet<string> _supportedDstLangs = new HashSet<string> { "en", "ja", "ko", "ru", "zh", "zh-TW" };
-        private static readonly Dictionary<string, string> _langZhDict = new Dictionary<string, string>
+        private static readonly HashSet<string> s_supportedSrcLangs = new HashSet<string> { "en", "ja", "ko", "ru", "zh", "zh-TW" };
+        private static readonly HashSet<string> s_supportedDstLangs = new HashSet<string> { "en", "ja", "ko", "ru", "zh", "zh-TW" };
+        private static readonly Dictionary<string, string> s_langZhDict = new Dictionary<string, string>
         {
             { "en", "英语" },
             { "ja", "日语" },
@@ -19,7 +19,7 @@ namespace DeepSeekTranslate
             { "zh", "简中" },
             { "zh-TW", "繁中" }
         };
-        private static readonly Dictionary<string, string> _langShortZhDict = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> s_langShortZhDict = new Dictionary<string, string>
         {
             { "en", "英" },
             { "ja", "日" },
@@ -28,7 +28,7 @@ namespace DeepSeekTranslate
             { "zh", "中" },
             { "zh-TW", "中" }
         };
-        private static readonly Dictionary<string, string> _trExampleDict = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> s_trExampleDict = new Dictionary<string, string>
         {
             { "en", "Love is the flame in the depth of the soul, warm and never extinguished." },
             { "ja", "愛は魂の深淵にある炎で、暖かくて永遠に消えない。" },
