@@ -26,6 +26,9 @@ namespace DeepSeekTranslate
 
         private string _endpoint;
         private string _apiKey;
+        private string _model;
+        private double _temperature;
+        private int _maxTokens;
         private int _maxConcurrency;
         private bool _batchTranslate;
         private int _maxTranslationsPerRequest;
@@ -92,6 +95,9 @@ namespace DeepSeekTranslate
             // init settings
             _endpoint = context.GetOrCreateSetting<string>("DeepSeek", "Endpoint", "https://api.deepseek.com/chat/completions");
             _apiKey = context.GetOrCreateSetting<string>("DeepSeek", "ApiKey", "YOUR_API_KEY_HERE");
+            _model = context.GetOrCreateSetting<string>("DeepSeek", "Model", "deepseek-chat");
+            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxTokens", "1024"), out _maxTokens) || _maxTokens <= 0) { _maxTokens = 1024; }
+            if (!double.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "Temperature", "1.3"), out _temperature) || _temperature <= 0) { _temperature = 1.3; }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxConcurrency", "1"), out _maxConcurrency) || _maxConcurrency < 1) { _maxConcurrency = 1; }
             if (ServicePointManager.DefaultConnectionLimit < _maxConcurrency) { ServicePointManager.DefaultConnectionLimit = _maxConcurrency; }
             if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "BatchTranslate", "false"), out _batchTranslate)) { _batchTranslate = false; }
@@ -210,7 +216,7 @@ namespace DeepSeekTranslate
                 new PromptMessage("user", _trUserExampleStr),
                 new PromptMessage("assistant", _trAssistantExampleStr),
                 new PromptMessage("user", userTrPrompt)
-            });
+            }, _model, _temperature, _maxTokens);
             var promptBytes = Encoding.UTF8.GetBytes(prompt);
             // create request
             var request = (HttpWebRequest)WebRequest.Create(new Uri(_endpoint));
@@ -307,7 +313,7 @@ namespace DeepSeekTranslate
                 new PromptMessage("user", _trUserExampleStr),
                 new PromptMessage("assistant", _trAssistantExampleStr),
                 new PromptMessage("user", userTrPrompt)
-            });
+            }, _model, _temperature, _maxTokens);
             if (DEBUG) { Console.WriteLine($"TranslateBatch: prompt={{{prompt}}}"); }
             var promptBytes = Encoding.UTF8.GetBytes(prompt);
             // create request
