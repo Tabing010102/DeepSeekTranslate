@@ -13,37 +13,46 @@ In this case, you can set `Endpoint` to your Nginx server address and set `Corou
 
 ## Configuration
 
-1. **Endpoint**:
+- **Endpoint**:
    - Default Value: `https://api.deepseek.com/chat/completions`
 
-2. **ApiKey**:
+- **ApiKey**:
    - Default Value: `YOUR_API_KEY_HERE`
 
-3. **MaxConcurrency**:
+- **Model**:
+   - Default Value: `deepseek-chat`
+
+- **MaxTokens**:
+   - Default Value: `1024`
+
+- **Temperature**:
+   - Default Value: `1.3`
+
+- **MaxConcurrency**:
    - Default Value: `1`
    - Description: The maximum concurrency. If parsing fails or the value is less than 1, it defaults to 1.
 
-4. **BatchTranslate**:
+- **BatchTranslate**:
    - Default Value: `false`
    - Description: Whether to enable batch translation. If parsing fails, it defaults to `false`.
 
-5. **MaxTranslationsPerRequest**:
+- **MaxTranslationsPerRequest**:
    - Default Value: `1`
    - Description: The maximum number of translations per request, only valid when `BatchTranslate` is `true`. If parsing fails or the value is less than 1, it defaults to 1.
 
-6. **CoroutineWaitCountBeforeRead**:
+- **CoroutineWaitCountBeforeRead**:
    - Default Value: `150`
    - Description: The coroutine wait count before reading response stream, only valid when `UseThreadPool` is `false`. If parsing fails or the value is less than 0, it defaults to 150.
 
-7. **UseThreadPool**:
+- **UseThreadPool**:
    - Default Value: `true`
    - Description: Whether to use the thread pool. If parsing fails, it defaults to `true`.
 
-8. **MinThreadCount**:
+- **MinThreadCount**:
    - Default Value: `Environment.ProcessorCount * 2`
    - Description: The minimum thread count. If parsing fails or the value is less than or equal to 0, it defaults to twice the number of processors.
 
-9. **MaxThreadCount**:
+- **MaxThreadCount**:
    - Default Value: `Environment.ProcessorCount * 4`
    - Description: The maximum thread count. If parsing fails or the value is less than or equal to 0, it defaults to four times the number of processors.
 
