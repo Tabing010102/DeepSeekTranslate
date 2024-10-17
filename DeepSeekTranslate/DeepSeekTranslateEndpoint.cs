@@ -29,6 +29,7 @@ namespace DeepSeekTranslate
         private string _model;
         private double _temperature;
         private int _maxTokens;
+        private bool _splitByLine;
         private int _maxConcurrency;
         private bool _batchTranslate;
         private int _maxTranslationsPerRequest;
@@ -84,20 +85,21 @@ namespace DeepSeekTranslate
             _trUserExampleStr =
                 $"###这是你接下来的翻译任务，原文文本如下###\n" +
                 $"```json\n" +
-                $"{{\"0\": \"{s_trExampleDict[FixLanguage(context.SourceLanguage)]}\"}}\n" +
+                $"{{\"0\":\"{s_trExampleDict[FixLanguage(context.SourceLanguage)]}\"}}\n" +
                 $"```";
             _trAssistantExampleStr =
                 $"我完全理解了您的要求，我将遵循你的指示进行翻译，以下是对原文的翻译:\n" +
                 $"```json\n" +
-                $"{{\"0\": \"{s_trExampleDict[FixLanguage(context.DestinationLanguage)]}\"}}\n" +
+                $"{{\"0\":\"{s_trExampleDict[FixLanguage(context.DestinationLanguage)]}\"}}\n" +
                 $"```";
 
             // init settings
             _endpoint = context.GetOrCreateSetting<string>("DeepSeek", "Endpoint", "https://api.deepseek.com/chat/completions");
             _apiKey = context.GetOrCreateSetting<string>("DeepSeek", "ApiKey", "YOUR_API_KEY_HERE");
             _model = context.GetOrCreateSetting<string>("DeepSeek", "Model", "deepseek-chat");
-            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxTokens", "1024"), out _maxTokens) || _maxTokens <= 0) { _maxTokens = 1024; }
             if (!double.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "Temperature", "1.3"), out _temperature) || _temperature <= 0) { _temperature = 1.3; }
+            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxTokens", "1024"), out _maxTokens) || _maxTokens <= 0) { _maxTokens = 1024; }
+            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "SplitByLine", "false"), out _splitByLine)) { _splitByLine = false; }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxConcurrency", "1"), out _maxConcurrency) || _maxConcurrency < 1) { _maxConcurrency = 1; }
             if (ServicePointManager.DefaultConnectionLimit < _maxConcurrency) { ServicePointManager.DefaultConnectionLimit = _maxConcurrency; }
             if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "BatchTranslate", "false"), out _batchTranslate)) { _batchTranslate = false; }
@@ -126,13 +128,20 @@ namespace DeepSeekTranslate
                     Console.WriteLine($"Translate: context={{{string.Join(", ", context.UntranslatedTexts)}}}");
                 }
                 var untranslatedTexts = context.UntranslatedTexts;
-                // split text into lines
                 var lines = new List<string>();
                 var textLineDict = new Dictionary<int, int>(untranslatedTexts.Length);
-                for (int i = 0; i < untranslatedTexts.Length; i++)
+                if (_splitByLine)
                 {
-                    textLineDict.Add(lines.Count, i);
-                    lines.AddRange(untranslatedTexts[i].Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
+                    // split text into lines
+                    for (int i = 0; i < untranslatedTexts.Length; i++)
+                    {
+                        textLineDict.Add(lines.Count, i);
+                        lines.AddRange(untranslatedTexts[i].Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
+                    }
+                }
+                else
+                {
+                    lines.AddRange(untranslatedTexts);
                 }
 
                 var lineNumberDict = new Dictionary<int, int>(lines.Count);
@@ -146,12 +155,12 @@ namespace DeepSeekTranslate
                     }
                     else
                     {
-                        trJsonStrBuilder.Append($"\"{validLineCount}\": \"{lines[i]}\",\n");
+                        trJsonStrBuilder.Append($"\"{validLineCount}\":\"{lines[i]}\",");
                         lineNumberDict.Add(i, validLineCount);
                         validLineCount++;
                     }
                 }
-                trJsonStrBuilder.Remove(trJsonStrBuilder.Length - 2, 2);
+                trJsonStrBuilder.Remove(trJsonStrBuilder.Length - 1, 1);
                 var translatedTextBuilders = new StringBuilder[untranslatedTexts.Length];
                 for (int i = 0; i < translatedTextBuilders.Length; i++)
                 {
@@ -165,7 +174,8 @@ namespace DeepSeekTranslate
                 var translatedTexts = new string[untranslatedTexts.Length];
                 for (int i = 0; i < translatedTextBuilders.Length; i++)
                 {
-                    translatedTexts[i] = translatedTextBuilders[i].ToString().TrimEnd('\r', '\n');
+                    if (_splitByLine) { translatedTexts[i] = translatedTextBuilders[i].ToString().TrimEnd('\r', '\n'); }
+                    else { translatedTexts[i] = translatedTextBuilders[i].ToString(); }
                 }
 
                 if (DEBUG)
@@ -178,8 +188,16 @@ namespace DeepSeekTranslate
             else
             {
                 var untranslatedText = context.UntranslatedText;
-                // split text into lines
-                var lines = untranslatedText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+                string[] lines;
+                if (_splitByLine)
+                {
+                    // split text into lines
+                    lines = untranslatedText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+                }
+                else
+                {
+                    lines = new string[] { untranslatedText };
+                }
                 var translatedTextBuilder = new StringBuilder();
 
                 foreach (var line in lines)
@@ -198,7 +216,9 @@ namespace DeepSeekTranslate
                     }
                 }
 
-                var translatedText = translatedTextBuilder.ToString().TrimEnd('\r', '\n');
+                string translatedText;
+                if (_splitByLine) { translatedText = translatedTextBuilder.ToString().TrimEnd('\r', '\n'); }
+                else { translatedText = translatedTextBuilder.ToString(); }
                 context.Complete(translatedText);
             }
         }
@@ -359,15 +379,27 @@ namespace DeepSeekTranslate
                 {
                     if (textLineDict.ContainsKey(i)) { textPos = textLineDict[i]; }
                     if (DEBUG) { Console.WriteLine($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}"); }
-                    if (!lineNumberDict.ContainsKey(i))
+                    if (_splitByLine)
                     {
-                        translatedTextBuilders[textPos].AppendLine();
+                        if (!lineNumberDict.ContainsKey(i))
+                        {
+                            translatedTextBuilders[textPos].AppendLine();
+                        }
+                        else
+                        {
+                            if (DEBUG) { Console.WriteLine($"TranslateBatch: i={{{i}}}, lineNumberDict[i]={{{lineNumberDict[i]}}}, contents[lineNumberDict[i]]={{{contents[lineNumberDict[i].ToString()].ToString().Trim('\"')}}}"); }
+                            translatedTextBuilders[textPos].AppendLine(contents[lineNumberDict[i].ToString()].ToString().Trim('\"'));
+                            if (DEBUG) { Console.WriteLine($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}, translatedTextBuilders[textPos]={{{translatedTextBuilders[textPos].ToString()}}}"); }
+                        }
                     }
                     else
                     {
-                        if (DEBUG) { Console.WriteLine($"TranslateBatch: i={{{i}}}, lineNumberDict[i]={{{lineNumberDict[i]}}}, contents[lineNumberDict[i]]={{{contents[lineNumberDict[i].ToString()].ToString().Trim('\"')}}}"); }
-                        translatedTextBuilders[textPos].AppendLine(contents[lineNumberDict[i].ToString()].ToString().Trim('\"'));
-                        if (DEBUG) { Console.WriteLine($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}, translatedTextBuilders[textPos]={{{translatedTextBuilders[textPos].ToString()}}}"); }
+                        if (lineNumberDict.ContainsKey(i))
+                        {
+                            if (DEBUG) { Console.WriteLine($"TranslateBatch: i={{{i}}}, lineNumberDict[i]={{{lineNumberDict[i]}}}, contents[lineNumberDict[i].ToString()]={{{contents[lineNumberDict[i].ToString()].ToString().Trim('\"')}}}"); }
+                            translatedTextBuilders[textPos].Append(contents[lineNumberDict[i].ToString()].ToString().Trim('\"'));
+                            if (DEBUG) { Console.WriteLine($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}, translatedTextBuilders[textPos]={{{translatedTextBuilders[textPos].ToString()}}}"); }
+                        }
                     }
                 }
 
