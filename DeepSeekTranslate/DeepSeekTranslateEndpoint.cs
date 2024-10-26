@@ -141,7 +141,11 @@ namespace DeepSeekTranslate
                 }
                 else
                 {
-                    lines.AddRange(untranslatedTexts);
+                    for (int i = 0; i < untranslatedTexts.Length; i++)
+                    {
+                        textLineDict.Add(lines.Count, i);
+                        lines.Add(untranslatedTexts[i]);
+                    }
                 }
 
                 var lineNumberDict = new Dictionary<int, int>(lines.Count);
@@ -278,7 +282,8 @@ namespace DeepSeekTranslate
                 var jsonObj = JSON.Parse(responseText);
                 var respMsg = jsonObj.AsObject["choices"].AsArray[0]["message"];
                 var translatedLine = JSON.Parse(respMsg["content"])["0"].ToString().Trim('\"');
-                translatedTextBuilder.AppendLine(translatedLine);
+                if (_splitByLine) { translatedTextBuilder.AppendLine(translatedLine); }
+                else { translatedTextBuilder.Append(translatedLine); }
             }
             else
             {
@@ -300,7 +305,8 @@ namespace DeepSeekTranslate
                     var jsonObj = JSON.Parse(responseText);
                     var respMsg = jsonObj.AsObject["choices"].AsArray[0]["message"];
                     var translatedLine = JSON.Parse(respMsg["content"])["0"].ToString().Trim('\"');
-                    translatedTextBuilder.AppendLine(translatedLine);
+                    if (_splitByLine) { translatedTextBuilder.AppendLine(translatedLine); }
+                    else { translatedTextBuilder.Append(translatedLine); }
 
                     isCompleted = true;
                 });
