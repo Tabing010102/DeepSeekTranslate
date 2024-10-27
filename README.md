@@ -25,6 +25,10 @@ In this case, you can set `Endpoint` to your Nginx server address and set `Corou
 - **MaxTokens**:
    - Default Value: `1024`
 
+- **SplitByLine**:
+   - Default Value: `false`
+   - Description: Whether to split and translate the input by new line. If parsing fails, it defaults to `false`.
+
 - **Temperature**:
    - Default Value: `1.3`
 
