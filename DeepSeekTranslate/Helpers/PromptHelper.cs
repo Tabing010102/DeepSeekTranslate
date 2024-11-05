@@ -1,15 +1,13 @@
-﻿using System;
+﻿using DeepSeekTranslate.Models;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using XUnity.AutoTranslator.Plugin.Core.Endpoints;
 using XUnity.AutoTranslator.Plugin.Core.Utilities;
 
-namespace DeepSeekTranslate
+namespace DeepSeekTranslate.Helpers
 {
-    public partial class DeepSeekTranslateEndpoint : ITranslateEndpoint
+    public static class PromptHelper
     {
-        private static string MakePromptStr(List<PromptMessage> prompts, string model, double temperature, 
+        public static string MakePromptStr(List<PromptMessage> prompts, string model, double temperature,
             int maxTokens, double frequencyPenalty = 0)
         {
             var sb = new StringBuilder();

@@ -1,4 +1,6 @@
-﻿using SimpleJSON;
+﻿using DeepSeekTranslate.Helpers;
+using DeepSeekTranslate.Models;
+using SimpleJSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,7 +10,6 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using XUnity.AutoTranslator.Plugin.Core.Endpoints;
-using XUnity.Common.Logging;
 
 namespace DeepSeekTranslate
 {
@@ -234,7 +235,7 @@ namespace DeepSeekTranslate
                 $"```json\n" +
                 $"{{\"0\": \"{line}\"}}\n" +
                 $"```";
-            var prompt = MakePromptStr(new List<PromptMessage>
+            var prompt = PromptHelper.MakePromptStr(new List<PromptMessage>
             {
                 new PromptMessage("system", _sysPromptStr),
                 new PromptMessage("user", _trUserExampleStr),
@@ -333,7 +334,7 @@ namespace DeepSeekTranslate
                 $"```json\n" +
                 $"{{{trJsonStr}}}\n" +
                 $"```";
-            var prompt = MakePromptStr(new List<PromptMessage>
+            var prompt = PromptHelper.MakePromptStr(new List<PromptMessage>
             {
                 new PromptMessage("system", _sysPromptStr),
                 new PromptMessage("user", _trUserExampleStr),
