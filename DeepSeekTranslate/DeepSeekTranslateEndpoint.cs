@@ -180,7 +180,7 @@ namespace DeepSeekTranslate
                 for (int i = 0; i < translatedTextBuilders.Length; i++)
                 {
                     if (_splitByLine) { translatedTexts[i] = translatedTextBuilders[i].ToString().TrimEnd('\r', '\n'); }
-                    else { translatedTexts[i] = translatedTextBuilders[i].ToString(); }
+                    else { translatedTexts[i] = translatedTextBuilders[i].UnescapeTranslation(untranslatedTexts[i]).ToString(); }
                 }
 
                 if (DEBUG)
@@ -223,7 +223,7 @@ namespace DeepSeekTranslate
 
                 string translatedText;
                 if (_splitByLine) { translatedText = translatedTextBuilder.ToString().TrimEnd('\r', '\n'); }
-                else { translatedText = translatedTextBuilder.ToString(); }
+                else { translatedText = translatedTextBuilder.UnescapeTranslation(untranslatedText).ToString(); }
                 context.Complete(translatedText);
             }
         }
