@@ -10,6 +10,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using XUnity.AutoTranslator.Plugin.Core.Endpoints;
+using XUnity.AutoTranslator.Plugin.Core.Utilities;
 
 namespace DeepSeekTranslate
 {
@@ -180,7 +181,7 @@ namespace DeepSeekTranslate
                 for (int i = 0; i < translatedTextBuilders.Length; i++)
                 {
                     if (_splitByLine) { translatedTexts[i] = translatedTextBuilders[i].ToString().TrimEnd('\r', '\n'); }
-                    else { translatedTexts[i] = translatedTextBuilders[i].UnescapeTranslation(untranslatedTexts[i]).ToString(); }
+                    else { translatedTexts[i] = JsonHelper.Unescape(translatedTextBuilders[i].ToString()); }
                 }
 
                 if (DEBUG)
@@ -223,7 +224,7 @@ namespace DeepSeekTranslate
 
                 string translatedText;
                 if (_splitByLine) { translatedText = translatedTextBuilder.ToString().TrimEnd('\r', '\n'); }
-                else { translatedText = translatedTextBuilder.UnescapeTranslation(untranslatedText).ToString(); }
+                else { translatedText = JsonHelper.Unescape(translatedTextBuilder.ToString()); }
                 context.Complete(translatedText);
             }
         }
