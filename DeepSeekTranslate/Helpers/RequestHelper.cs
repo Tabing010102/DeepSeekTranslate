@@ -5,9 +5,9 @@ using XUnity.AutoTranslator.Plugin.Core.Utilities;
 
 namespace DeepSeekTranslate.Helpers
 {
-    public static class PromptHelper
+    public static class RequestHelper
     {
-        public static string MakePromptStr(List<PromptMessage> prompts, string model, double temperature,
+        public static string MakeRequestStr(List<PromptMessage> prompts, string model, double temperature,
             int maxTokens, double frequencyPenalty = 0)
         {
             var sb = new StringBuilder();
