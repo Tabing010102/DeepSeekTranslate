@@ -1,5 +1,7 @@
 ﻿using DeepSeekTranslate.Models;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using XUnity.AutoTranslator.Plugin.Core.Endpoints;
 using XUnity.AutoTranslator.Plugin.Core.Utilities;
@@ -9,15 +11,18 @@ namespace DeepSeekTranslate
 {
     public partial class DeepSeekTranslateEndpoint : ITranslateEndpoint
     {
-        public string MakeRequestStr(List<PromptMessage> prompts, string model, double temperature,
-            int maxTokens, double frequencyPenalty = 0)
+        public string MakeRequestStr(List<PromptMessage> prompts, double frequencyPenalty = 0)
         {
             var sb = new StringBuilder();
             prompts.ForEach(p => { sb.Append($"{{\"role\":\"{JsonHelper.Escape(p.Role)}\",\"content\":\"{JsonHelper.Escape(p.Content)}\"}},"); });
             sb.Remove(sb.Length - 1, 1);
+            double maxTokens;
+            if (_maxTokensMode == MaxTokensMode.Static) { maxTokens = _staticMaxTokens; }
+            else if (_maxTokensMode == MaxTokensMode.Dynamic) { maxTokens = prompts.Last().Content.Length * _dynamicMaxTokensMultiplier; }
+            else { throw new Exception("Invalid max tokens mode."); }
             var retStr =
                 $"{{\"messages\":[{sb}]," +
-                $"\"model\":\"{model}\"," +
+                $"\"model\":\"{_model}\"," +
                 $"\"frequency_penalty\":{frequencyPenalty}," +
                 $"\"max_tokens\":{maxTokens}," +
                 $"\"presence_penalty\":0," +
@@ -25,7 +30,7 @@ namespace DeepSeekTranslate
                 $"\"stop\":null," +
                 $"\"stream\":false," +
                 $"\"stream_options\":null," +
-                $"\"temperature\":{temperature}," +
+                $"\"temperature\":{_temperature}," +
                 $"\"top_p\":1," +
                 $"\"tools\":null," +
                 $"\"tool_choice\":\"none\"," +

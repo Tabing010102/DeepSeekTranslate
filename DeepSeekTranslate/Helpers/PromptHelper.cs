@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using XUnity.AutoTranslator.Plugin.Core.Endpoints;
-using XUnity.Common.Logging;
 
 namespace DeepSeekTranslate
 {

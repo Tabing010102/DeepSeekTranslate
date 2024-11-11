@@ -19,7 +19,9 @@ namespace DeepSeekTranslate
         private string _apiKey;
         private string _model;
         private double _temperature;
-        private int _maxTokens;
+        private MaxTokensMode _maxTokensMode;
+        private int _staticMaxTokens;
+        private double _dynamicMaxTokensMultiplier;
         private DictMode _dictMode;
         private Dictionary<string, List<string>> _dict;
         private bool _splitByLine;

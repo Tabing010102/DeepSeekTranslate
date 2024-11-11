@@ -64,7 +64,19 @@ namespace DeepSeekTranslate
             _apiKey = context.GetOrCreateSetting<string>("DeepSeek", "ApiKey", "YOUR_API_KEY_HERE");
             _model = context.GetOrCreateSetting<string>("DeepSeek", "Model", "deepseek-chat");
             if (!double.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "Temperature", "1.3"), out _temperature) || _temperature <= 0) { _temperature = 1.3; }
-            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxTokens", "1024"), out _maxTokens) || _maxTokens <= 0) { _maxTokens = 1024; }
+            #region maxTokens
+            try
+            {
+                _maxTokensMode = (MaxTokensMode)Enum.Parse(typeof(MaxTokensMode), context.GetOrCreateSetting<string>("DeepSeek", "MaxTokensMode", "Static"), true);
+            }
+            catch (Exception ex)
+            {
+                XuaLogger.AutoTranslator.Warn(ex, $"Failed to parse max tokens mode: {context.GetOrCreateSetting<string>("DeepSeek", "MaxTokensMode", "Static")}, falling back to Static");
+                _maxTokensMode = MaxTokensMode.Static;
+            }
+            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxTokens", "1024"), out _staticMaxTokens) || _staticMaxTokens <= 0) { _staticMaxTokens = 1024; }
+            if (!double.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "DynamicMaxTokensMultiplier", "1.5"), out _dynamicMaxTokensMultiplier) || _dynamicMaxTokensMultiplier <= 0) { _dynamicMaxTokensMultiplier = 1.0; }
+            #endregion
             // init dict
             #region init dict
             try
@@ -73,7 +85,7 @@ namespace DeepSeekTranslate
             }
             catch (Exception ex)
             {
-                XuaLogger.AutoTranslator.Warn(ex, $"Failed to parse dict mode: {context.GetOrCreateSetting<string>("DeepSeek", "DictMode", "None")}, setting to None");
+                XuaLogger.AutoTranslator.Warn(ex, $"Failed to parse dict mode: {context.GetOrCreateSetting<string>("DeepSeek", "DictMode", "None")}, falling back to None");
                 _dictMode = DictMode.None;
             }
             var dictStr = context.GetOrCreateSetting<string>("DeepSeek", "Dict", string.Empty);
