@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading;
 using XUnity.AutoTranslator.Plugin.Core.Endpoints;
 using XUnity.AutoTranslator.Plugin.Core.Utilities;
+using XUnity.Common.Logging;
 
 namespace DeepSeekTranslate
 {
@@ -131,8 +132,9 @@ namespace DeepSeekTranslate
                         _fullDictStr = s_dictBaseStr + string.Join("\n", dictStrings.ToArray());
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    XuaLogger.AutoTranslator.Warn(ex, $"Failed to parse dict string: {dictStr}");
                     _useDict = false;
                     _fullDictStr = string.Empty;
                 }
@@ -140,7 +142,11 @@ namespace DeepSeekTranslate
             #endregion
             if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "SplitByLine", "false"), out _splitByLine)) { _splitByLine = false; }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxConcurrency", "1"), out _maxConcurrency) || _maxConcurrency < 1) { _maxConcurrency = 1; }
-            if (ServicePointManager.DefaultConnectionLimit < _maxConcurrency) { ServicePointManager.DefaultConnectionLimit = _maxConcurrency; }
+            if (ServicePointManager.DefaultConnectionLimit < _maxConcurrency)
+            {
+                XuaLogger.AutoTranslator.Info($"Setting ServicePointManager.DefaultConnectionLimit to {_maxConcurrency}");
+                ServicePointManager.DefaultConnectionLimit = _maxConcurrency;
+            }
             if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "BatchTranslate", "false"), out _batchTranslate)) { _batchTranslate = false; }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxTranslationsPerRequest", "1"), out _maxTranslationsPerRequest) || _maxTranslationsPerRequest < 1) { _maxTranslationsPerRequest = 1; }
             if (!_batchTranslate) { _maxTranslationsPerRequest = 1; }
@@ -152,9 +158,12 @@ namespace DeepSeekTranslate
             {
                 ThreadPool.GetMinThreads(out int minWorkerThreads, out int minCompletionPortThreads);
                 ThreadPool.GetMaxThreads(out int maxWorkerThreads, out int maxCompletionPortThreads);
+                XuaLogger.AutoTranslator.Info($"Setting ThreadPool min threads to {Math.Max(minWorkerThreads, _minThreadCount)} " +
+                    $"and max threads to {Math.Max(minCompletionPortThreads, _minThreadCount)}");
                 ThreadPool.SetMinThreads(Math.Max(minWorkerThreads, _minThreadCount), Math.Max(minCompletionPortThreads, _minThreadCount));
                 ThreadPool.SetMaxThreads(Math.Max(maxWorkerThreads, _maxThreadCount), Math.Max(maxCompletionPortThreads, _maxThreadCount));
             }
+            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "Debug", "false"), out _debug)) { _debug = false; }
         }
     }
 }

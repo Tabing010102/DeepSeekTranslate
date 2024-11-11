@@ -1,5 +1,4 @@
-﻿using DeepSeekTranslate.Helpers;
-using DeepSeekTranslate.Models;
+﻿using DeepSeekTranslate.Models;
 using SimpleJSON;
 using System;
 using System.Collections;
@@ -14,14 +13,14 @@ namespace DeepSeekTranslate
 {
     public partial class DeepSeekTranslateEndpoint : ITranslateEndpoint
     {
-        private IEnumerator TranslateLine(string line, StringBuilder translatedTextBuilder)
+        private IEnumerator TranslateSingle(string line, StringBuilder translatedTextBuilder)
         {
             // create prompt
             var userTrPrompt = $"###这是你接下来的翻译任务，原文文本如下###\n" +
                 $"```json\n" +
                 $"{{\"0\": \"{line}\"}}\n" +
                 $"```";
-            var prompt = RequestHelper.MakeRequestStr(new List<PromptMessage>
+            var prompt = MakeRequestStr(new List<PromptMessage>
             {
                 new PromptMessage("system", GetSysPromptStr()),
                 new PromptMessage("user", _trUserExampleStr),

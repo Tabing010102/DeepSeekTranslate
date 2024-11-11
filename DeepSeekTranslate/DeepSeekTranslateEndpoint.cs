@@ -5,8 +5,6 @@ namespace DeepSeekTranslate
 {
     public partial class DeepSeekTranslateEndpoint : ITranslateEndpoint
     {
-        private const bool DEBUG = false;
-
         private string _srcLangShort;
         private string _srcLang;
         private string _dstLangShort;
@@ -14,6 +12,7 @@ namespace DeepSeekTranslate
         private string _sysPromptStr;
         private string _trUserExampleStr;
         private string _trAssistantExampleStr;
+        private string _fullDictStr;
 
         private string _endpoint;
         private string _apiKey;
@@ -31,12 +30,11 @@ namespace DeepSeekTranslate
         private bool _useThreadPool;
         private int _minThreadCount;
         private int _maxThreadCount;
-
-        private string _fullDictStr;
+        private bool _debug;
 
         public string Id => "DeepSeekTranslate";
 
-        public string FriendlyName => Id;
+        public string FriendlyName => "DeepSeek API Translator";
 
         public int MaxConcurrency => _maxConcurrency;
 

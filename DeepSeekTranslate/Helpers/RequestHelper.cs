@@ -1,19 +1,22 @@
 ﻿using DeepSeekTranslate.Models;
 using System.Collections.Generic;
 using System.Text;
+using XUnity.AutoTranslator.Plugin.Core.Endpoints;
 using XUnity.AutoTranslator.Plugin.Core.Utilities;
+using XUnity.Common.Logging;
 
-namespace DeepSeekTranslate.Helpers
+namespace DeepSeekTranslate
 {
-    public static class RequestHelper
+    public partial class DeepSeekTranslateEndpoint : ITranslateEndpoint
     {
-        public static string MakeRequestStr(List<PromptMessage> prompts, string model, double temperature,
+        public string MakeRequestStr(List<PromptMessage> prompts, string model, double temperature,
             int maxTokens, double frequencyPenalty = 0)
         {
             var sb = new StringBuilder();
             prompts.ForEach(p => { sb.Append($"{{\"role\":\"{JsonHelper.Escape(p.Role)}\",\"content\":\"{JsonHelper.Escape(p.Content)}\"}},"); });
             sb.Remove(sb.Length - 1, 1);
-            return $"{{\"messages\":[{sb}]," +
+            var retStr =
+                $"{{\"messages\":[{sb}]," +
                 $"\"model\":\"{model}\"," +
                 $"\"frequency_penalty\":{frequencyPenalty}," +
                 $"\"max_tokens\":{maxTokens}," +
@@ -28,6 +31,8 @@ namespace DeepSeekTranslate.Helpers
                 $"\"tool_choice\":\"none\"," +
                 $"\"logprobs\":false," +
                 $"\"top_logprobs\":null}}";
+            if (_debug) { XuaLogger.AutoTranslator.Debug($"MakeRequestStr: retStr={{{retStr}}}"); }
+            return retStr;
         }
     }
 }

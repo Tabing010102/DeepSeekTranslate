@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using XUnity.AutoTranslator.Plugin.Core.Endpoints;
 using XUnity.AutoTranslator.Plugin.Core.Utilities;
+using XUnity.Common.Logging;
 
 namespace DeepSeekTranslate
 {
@@ -14,9 +15,9 @@ namespace DeepSeekTranslate
             // batch translate force use thread pool
             if (_batchTranslate && _useThreadPool)
             {
-                if (DEBUG)
+                if (_debug)
                 {
-                    Console.WriteLine($"Translate: context={{{string.Join(", ", context.UntranslatedTexts)}}}");
+                    XuaLogger.AutoTranslator.Debug($"Translate: context.UntranslatedTexts={{{string.Join(", ", context.UntranslatedTexts)}}}");
                 }
                 var untranslatedTexts = context.UntranslatedTexts;
                 var lines = new List<string>();
@@ -73,9 +74,9 @@ namespace DeepSeekTranslate
                     else { translatedTexts[i] = JsonHelper.Unescape(translatedTextBuilders[i].ToString()); }
                 }
 
-                if (DEBUG)
+                if (_debug)
                 {
-                    Console.WriteLine($"Translate: translatedTexts={{{string.Join(", ", translatedTexts)}}}");
+                    XuaLogger.AutoTranslator.Debug($"Translate: translatedTexts={{{string.Join(", ", translatedTexts)}}}");
                 }
                 context.Complete(translatedTexts);
             }
@@ -99,7 +100,7 @@ namespace DeepSeekTranslate
                 {
                     if (!string.IsNullOrEmpty(line))
                     {
-                        var translateLineCoroutine = TranslateLine(line, translatedTextBuilder);
+                        var translateLineCoroutine = TranslateSingle(line, translatedTextBuilder);
                         while (translateLineCoroutine.MoveNext())
                         {
                             yield return null;
