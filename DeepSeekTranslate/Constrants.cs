@@ -34,5 +34,9 @@ namespace DeepSeekTranslate
             { "zh", "爱情是灵魂深处的火焰，温暖且永不熄灭。" },
             { "zh-TW", "愛情是靈魂深處的火焰，溫暖且永不熄滅。" }
         };
+        private static readonly string s_dictBaseStr =
+            "\n###术语表###\n" +
+            "|\t原文\t|\t译文\t|\t备注\t|\n" +
+            "--------------------------------------------------\n";
     }
 }

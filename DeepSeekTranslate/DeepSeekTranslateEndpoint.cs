@@ -31,6 +31,9 @@ namespace DeepSeekTranslate
         private string _model;
         private double _temperature;
         private int _maxTokens;
+        private bool _useDict;
+        private string _dictMode;
+        private Dictionary<string, List<string>> _dict;
         private bool _splitByLine;
         private int _maxConcurrency;
         private bool _batchTranslate;
@@ -39,6 +42,8 @@ namespace DeepSeekTranslate
         private bool _useThreadPool;
         private int _minThreadCount;
         private int _maxThreadCount;
+
+        private string _fullDictStr;
 
         public string Id => "DeepSeekTranslate";
 
@@ -60,6 +65,20 @@ namespace DeepSeekTranslate
                 default:
                     return lang;
             }
+        }
+
+        private List<string> GetDictStringList(IEnumerable<KeyValuePair<string, List<string>>> kvPairs)
+        {
+            List<string> dictList = new List<string>();
+            foreach (var entry in kvPairs)
+            {
+                var src = entry.Key;
+                var dst = entry.Value[0];
+                var info = entry.Value[1];
+                dictList.Add($"|\t{src}\t|\t{dst}\t|\t{(string.IsNullOrEmpty(info) ? " " : info)}\t|");
+            }
+
+            return dictList;
         }
 
         public void Initialize(IInitializationContext context)
@@ -101,6 +120,69 @@ namespace DeepSeekTranslate
             _model = context.GetOrCreateSetting<string>("DeepSeek", "Model", "deepseek-chat");
             if (!double.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "Temperature", "1.3"), out _temperature) || _temperature <= 0) { _temperature = 1.3; }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxTokens", "1024"), out _maxTokens) || _maxTokens <= 0) { _maxTokens = 1024; }
+            #region init dict
+            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "UseDict", "false"), out _useDict))
+            {
+                _useDict = false;
+            }
+            _dictMode = context.GetOrCreateSetting<string>("DeepSeek", "DictMode", "full");
+            var dictStr = context.GetOrCreateSetting<string>("DeepSeek", "Dict", string.Empty);
+            if (string.IsNullOrEmpty(dictStr))
+            {
+                _useDict = false;
+                _fullDictStr = string.Empty;
+            }
+            else
+            {
+                try
+                {
+                    _dict = new Dictionary<string, List<string>>();
+                    var dictJObj = JSON.Parse(dictStr);
+                    foreach (var item in dictJObj)
+                    {
+                        try
+                        {
+                            var vArr = JSON.Parse(item.Value.ToString()).AsArray;
+                            List<string> vList;
+                            if (vArr.Count <= 0)
+                            {
+                                throw new Exception();
+                            }
+                            else if (vArr.Count == 1)
+                            {
+                                vList = new List<string> { JsonHelper.Unescape(vArr[0].ToString().Trim('\"')), string.Empty };
+                            }
+                            else
+                            {
+                                vList = new List<string> { JsonHelper.Unescape(vArr[0].ToString().Trim('\"')),
+                                    JsonHelper.Unescape(vArr[1].ToString().Trim('\"')) };
+                            }
+                            _dict.Add(JsonHelper.Unescape(item.Key.Trim('\"')), vList);
+                        }
+                        catch
+                        {
+                            _dict.Add(JsonHelper.Unescape(item.Key.Trim('\"')),
+                                new List<string> { JsonHelper.Unescape(item.Value.ToString().Trim('\"')), string.Empty });
+                        }
+                    }
+                    if (_dict.Count == 0)
+                    {
+                        _useDict = false;
+                        _fullDictStr = string.Empty;
+                    }
+                    else
+                    {
+                        var dictStrings = GetDictStringList(_dict);
+                        _fullDictStr = s_dictBaseStr + string.Join("\n", dictStrings.ToArray());
+                    }
+                }
+                catch
+                {
+                    _useDict = false;
+                    _fullDictStr = string.Empty;
+                }
+            }
+            #endregion
             if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "SplitByLine", "false"), out _splitByLine)) { _splitByLine = false; }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxConcurrency", "1"), out _maxConcurrency) || _maxConcurrency < 1) { _maxConcurrency = 1; }
             if (ServicePointManager.DefaultConnectionLimit < _maxConcurrency) { ServicePointManager.DefaultConnectionLimit = _maxConcurrency; }
@@ -238,7 +320,7 @@ namespace DeepSeekTranslate
                 $"```";
             var prompt = PromptHelper.MakePromptStr(new List<PromptMessage>
             {
-                new PromptMessage("system", _sysPromptStr),
+                new PromptMessage("system", GetSysPromptStr()),
                 new PromptMessage("user", _trUserExampleStr),
                 new PromptMessage("assistant", _trAssistantExampleStr),
                 new PromptMessage("user", userTrPrompt)
@@ -337,7 +419,7 @@ namespace DeepSeekTranslate
                 $"```";
             var prompt = PromptHelper.MakePromptStr(new List<PromptMessage>
             {
-                new PromptMessage("system", _sysPromptStr),
+                new PromptMessage("system", GetSysPromptStr()),
                 new PromptMessage("user", _trUserExampleStr),
                 new PromptMessage("assistant", _trAssistantExampleStr),
                 new PromptMessage("user", userTrPrompt)
@@ -418,6 +500,18 @@ namespace DeepSeekTranslate
             while (!isCompleted)
             {
                 yield return null;
+            }
+        }
+
+        private string GetSysPromptStr()
+        {
+            if (!_useDict || string.IsNullOrEmpty(_fullDictStr))
+            {
+                return _sysPromptStr;
+            }
+            else
+            {
+                return _sysPromptStr + _fullDictStr;
             }
         }
     }

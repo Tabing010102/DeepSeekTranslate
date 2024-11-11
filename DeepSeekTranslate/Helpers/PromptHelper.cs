@@ -13,7 +13,7 @@ namespace DeepSeekTranslate.Helpers
             var sb = new StringBuilder();
             prompts.ForEach(p => { sb.Append($"{{\"role\":\"{JsonHelper.Escape(p.Role)}\",\"content\":\"{JsonHelper.Escape(p.Content)}\"}},"); });
             sb.Remove(sb.Length - 1, 1);
-            return $"{{\"messages\":[{sb.ToString()}]," +
+            return $"{{\"messages\":[{sb}]," +
                 $"\"model\":\"{model}\"," +
                 $"\"frequency_penalty\":{frequencyPenalty}," +
                 $"\"max_tokens\":{maxTokens}," +
@@ -22,7 +22,7 @@ namespace DeepSeekTranslate.Helpers
                 $"\"stop\":null," +
                 $"\"stream\":false," +
                 $"\"stream_options\":null," +
-                $"\"temperature\":{temperature.ToString()}," +
+                $"\"temperature\":{temperature}," +
                 $"\"top_p\":1," +
                 $"\"tools\":null," +
                 $"\"tool_choice\":\"none\"," +
