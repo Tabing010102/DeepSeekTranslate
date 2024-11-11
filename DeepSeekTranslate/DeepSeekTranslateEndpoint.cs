@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DeepSeekTranslate.Models;
+using System.Collections.Generic;
 using XUnity.AutoTranslator.Plugin.Core.Endpoints;
 
 namespace DeepSeekTranslate
@@ -19,8 +20,7 @@ namespace DeepSeekTranslate
         private string _model;
         private double _temperature;
         private int _maxTokens;
-        private bool _useDict;
-        private string _dictMode;
+        private DictMode _dictMode;
         private Dictionary<string, List<string>> _dict;
         private bool _splitByLine;
         private int _maxConcurrency;

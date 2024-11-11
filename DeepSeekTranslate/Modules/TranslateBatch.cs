@@ -32,7 +32,7 @@ namespace DeepSeekTranslate
                 $"```";
             var prompt = MakeRequestStr(new List<PromptMessage>
             {
-                new PromptMessage("system", GetSysPromptStr()),
+                new PromptMessage("system", GetSysPromptStr(trJsonStr)),
                 new PromptMessage("user", _trUserExampleStr),
                 new PromptMessage("assistant", _trAssistantExampleStr),
                 new PromptMessage("user", userTrPrompt)
@@ -91,7 +91,7 @@ namespace DeepSeekTranslate
                         {
                             if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, lineNumberDict[i]={{{lineNumberDict[i]}}}, contents[lineNumberDict[i]]={{{contents[lineNumberDict[i].ToString()].ToString().Trim('\"')}}}"); }
                             translatedTextBuilders[textPos].AppendLine(contents[lineNumberDict[i].ToString()].ToString().Trim('\"'));
-                            if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}, translatedTextBuilders[textPos]={{{translatedTextBuilders[textPos].ToString()}}}"); }
+                            if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}, translatedTextBuilders[textPos]={{{translatedTextBuilders[textPos]}}}"); }
                         }
                     }
                     else
@@ -100,7 +100,7 @@ namespace DeepSeekTranslate
                         {
                             if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, lineNumberDict[i]={{{lineNumberDict[i]}}}, contents[lineNumberDict[i].ToString()]={{{contents[lineNumberDict[i].ToString()].ToString().Trim('\"')}}}"); }
                             translatedTextBuilders[textPos].Append(contents[lineNumberDict[i].ToString()].ToString().Trim('\"'));
-                            if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}, translatedTextBuilders[textPos]={{{translatedTextBuilders[textPos].ToString()}}}"); }
+                            if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}, translatedTextBuilders[textPos]={{{translatedTextBuilders[textPos]}}}"); }
                         }
                     }
                 }

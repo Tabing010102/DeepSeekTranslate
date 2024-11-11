@@ -22,7 +22,7 @@ namespace DeepSeekTranslate
                 $"```";
             var prompt = MakeRequestStr(new List<PromptMessage>
             {
-                new PromptMessage("system", GetSysPromptStr()),
+                new PromptMessage("system", GetSysPromptStr(line)),
                 new PromptMessage("user", _trUserExampleStr),
                 new PromptMessage("assistant", _trAssistantExampleStr),
                 new PromptMessage("user", userTrPrompt)

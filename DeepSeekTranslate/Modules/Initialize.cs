@@ -1,4 +1,5 @@
-﻿using SimpleJSON;
+﻿using DeepSeekTranslate.Models;
+using SimpleJSON;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -23,20 +24,6 @@ namespace DeepSeekTranslate
                 default:
                     return lang;
             }
-        }
-
-        private List<string> GetDictStringList(IEnumerable<KeyValuePair<string, List<string>>> kvPairs)
-        {
-            List<string> dictList = new List<string>();
-            foreach (var entry in kvPairs)
-            {
-                var src = entry.Key;
-                var dst = entry.Value[0];
-                var info = entry.Value[1];
-                dictList.Add($"|\t{src}\t|\t{dst}\t|\t{(string.IsNullOrEmpty(info) ? " " : info)}\t|");
-            }
-
-            return dictList;
         }
 
         public void Initialize(IInitializationContext context)
@@ -80,12 +67,20 @@ namespace DeepSeekTranslate
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxTokens", "1024"), out _maxTokens) || _maxTokens <= 0) { _maxTokens = 1024; }
             // init dict
             #region init dict
-            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "UseDict", "false"), out _useDict)) { _useDict = false; }
-            _dictMode = context.GetOrCreateSetting<string>("DeepSeek", "DictMode", "full");
+            try
+            {
+                _dictMode = (DictMode)Enum.Parse(typeof(DictMode), context.GetOrCreateSetting<string>("DeepSeek", "DictMode", "None"), true);
+            }
+            catch (Exception ex)
+            {
+                XuaLogger.AutoTranslator.Warn(ex, $"Failed to parse dict mode: {context.GetOrCreateSetting<string>("DeepSeek", "DictMode", "None")}, setting to None");
+                _dictMode = DictMode.None;
+            }
             var dictStr = context.GetOrCreateSetting<string>("DeepSeek", "Dict", string.Empty);
             if (string.IsNullOrEmpty(dictStr))
             {
-                _useDict = false;
+                XuaLogger.AutoTranslator.Warn("Dict is empty, setting DictMode to None");
+                _dictMode = DictMode.None;
                 _fullDictStr = string.Empty;
             }
             else
@@ -123,35 +118,34 @@ namespace DeepSeekTranslate
                     }
                     if (_dict.Count == 0)
                     {
-                        _useDict = false;
+                        _dictMode = DictMode.None;
                         _fullDictStr = string.Empty;
                     }
                     else
                     {
-                        var dictStrings = GetDictStringList(_dict);
-                        _fullDictStr = s_dictBaseStr + string.Join("\n", dictStrings.ToArray());
+                        _fullDictStr = GetDictStr(_dict);
                     }
                 }
                 catch (Exception ex)
                 {
                     XuaLogger.AutoTranslator.Warn(ex, $"Failed to parse dict string: {dictStr}");
-                    _useDict = false;
+                    _dictMode = DictMode.None;
                     _fullDictStr = string.Empty;
                 }
             }
             #endregion
-            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "SplitByLine", "false"), out _splitByLine)) { _splitByLine = false; }
+            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "SplitByLine", "False"), out _splitByLine)) { _splitByLine = false; }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxConcurrency", "1"), out _maxConcurrency) || _maxConcurrency < 1) { _maxConcurrency = 1; }
             if (ServicePointManager.DefaultConnectionLimit < _maxConcurrency)
             {
                 XuaLogger.AutoTranslator.Info($"Setting ServicePointManager.DefaultConnectionLimit to {_maxConcurrency}");
                 ServicePointManager.DefaultConnectionLimit = _maxConcurrency;
             }
-            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "BatchTranslate", "false"), out _batchTranslate)) { _batchTranslate = false; }
+            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "BatchTranslate", "False"), out _batchTranslate)) { _batchTranslate = false; }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxTranslationsPerRequest", "1"), out _maxTranslationsPerRequest) || _maxTranslationsPerRequest < 1) { _maxTranslationsPerRequest = 1; }
             if (!_batchTranslate) { _maxTranslationsPerRequest = 1; }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "CoroutineWaitCountBeforeRead", "150"), out _coroutineWaitCountBeforeRead) || _coroutineWaitCountBeforeRead < 0) { _coroutineWaitCountBeforeRead = 150; }
-            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "UseThreadPool", "true"), out _useThreadPool)) { _useThreadPool = true; }
+            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "UseThreadPool", "True"), out _useThreadPool)) { _useThreadPool = true; }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MinThreadCount", ""), out _minThreadCount) || _minThreadCount <= 0) { _minThreadCount = Environment.ProcessorCount * 2; }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxThreadCount", ""), out _maxThreadCount) || _maxThreadCount <= 0) { _maxThreadCount = Environment.ProcessorCount * 4; }
             if (_useThreadPool)
@@ -163,7 +157,7 @@ namespace DeepSeekTranslate
                 ThreadPool.SetMinThreads(Math.Max(minWorkerThreads, _minThreadCount), Math.Max(minCompletionPortThreads, _minThreadCount));
                 ThreadPool.SetMaxThreads(Math.Max(maxWorkerThreads, _maxThreadCount), Math.Max(maxCompletionPortThreads, _maxThreadCount));
             }
-            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "Debug", "false"), out _debug)) { _debug = false; }
+            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "Debug", "False"), out _debug)) { _debug = false; }
         }
     }
 }
