@@ -16,9 +16,9 @@ namespace DeepSeekTranslate
             var sb = new StringBuilder();
             prompts.ForEach(p => { sb.Append($"{{\"role\":\"{JsonHelper.Escape(p.Role)}\",\"content\":\"{JsonHelper.Escape(p.Content)}\"}},"); });
             sb.Remove(sb.Length - 1, 1);
-            double maxTokens;
+            int maxTokens;
             if (_maxTokensMode == MaxTokensMode.Static) { maxTokens = _staticMaxTokens; }
-            else if (_maxTokensMode == MaxTokensMode.Dynamic) { maxTokens = prompts.Last().Content.Length * _dynamicMaxTokensMultiplier; }
+            else if (_maxTokensMode == MaxTokensMode.Dynamic) { maxTokens = (int)Math.Ceiling(prompts.Last().Content.Length * _dynamicMaxTokensMultiplier); }
             else { throw new Exception("Invalid max tokens mode."); }
             var retStr =
                 $"{{\"messages\":[{sb}]," +
