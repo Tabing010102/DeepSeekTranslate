@@ -11,7 +11,7 @@ namespace DeepSeekTranslate
 {
     public partial class DeepSeekTranslateEndpoint : ITranslateEndpoint
     {
-        public string MakeRequestStr(List<PromptMessage> prompts, double frequencyPenalty = 0)
+        private string MakeRequestStr(List<PromptMessage> prompts, double frequencyPenalty = 0)
         {
             var sb = new StringBuilder();
             prompts.ForEach(p => { sb.Append($"{{\"role\":\"{JsonHelper.Escape(p.Role)}\",\"content\":\"{JsonHelper.Escape(p.Content)}\"}},"); });
