@@ -1,7 +1,6 @@
 ﻿using DeepSeekTranslate.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using XUnity.AutoTranslator.Plugin.Core.Endpoints;
 using XUnity.AutoTranslator.Plugin.Core.Utilities;
@@ -11,15 +10,11 @@ namespace DeepSeekTranslate
 {
     public partial class DeepSeekTranslateEndpoint : ITranslateEndpoint
     {
-        private string MakeRequestStr(List<PromptMessage> prompts, double frequencyPenalty = 0)
+        private string MakeRequestStr(List<PromptMessage> prompts, int maxTokens, double frequencyPenalty = 0)
         {
             var sb = new StringBuilder();
             prompts.ForEach(p => { sb.Append($"{{\"role\":\"{JsonHelper.Escape(p.Role)}\",\"content\":\"{JsonHelper.Escape(p.Content)}\"}},"); });
             sb.Remove(sb.Length - 1, 1);
-            int maxTokens;
-            if (_maxTokensMode == MaxTokensMode.Static) { maxTokens = _staticMaxTokens; }
-            else if (_maxTokensMode == MaxTokensMode.Dynamic) { maxTokens = (int)Math.Ceiling(prompts.Last().Content.Length * _dynamicMaxTokensMultiplier); }
-            else { throw new Exception("Invalid max tokens mode."); }
             var retStr =
                 $"{{\"messages\":[{sb}]," +
                 $"\"model\":\"{_model}\"," +
@@ -38,6 +33,22 @@ namespace DeepSeekTranslate
                 $"\"top_logprobs\":null}}";
             if (_debug) { XuaLogger.AutoTranslator.Debug($"MakeRequestStr: retStr={{{retStr}}}"); }
             return retStr;
+        }
+
+        private int GetMaxTokens(string originalText)
+        {
+            if (_maxTokensMode == MaxTokensMode.Static)
+            {
+                return _staticMaxTokens;
+            }
+            else if (_maxTokensMode == MaxTokensMode.Dynamic)
+            {
+                return (int)Math.Ceiling(originalText.Length * _dynamicMaxTokensMultiplier);
+            }
+            else
+            {
+                throw new Exception("Invalid max tokens mode.");
+            }
         }
     }
 }

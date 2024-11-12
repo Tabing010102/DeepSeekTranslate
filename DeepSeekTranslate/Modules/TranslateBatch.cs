@@ -36,7 +36,7 @@ namespace DeepSeekTranslate
                 new PromptMessage("user", _trUserExampleStr),
                 new PromptMessage("assistant", _trAssistantExampleStr),
                 new PromptMessage("user", userTrPrompt)
-            });
+            }, GetMaxTokens(trJsonStr));
             var promptBytes = Encoding.UTF8.GetBytes(prompt);
             // create request
             var request = (HttpWebRequest)WebRequest.Create(new Uri(_endpoint));
