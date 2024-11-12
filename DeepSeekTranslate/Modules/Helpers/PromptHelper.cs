@@ -36,14 +36,7 @@ namespace DeepSeekTranslate
             else if (_dictMode == DictMode.MatchOriginal)
             {
                 var usedDict = _dict.Where(x => originalText.Contains(x.Key));
-                if (usedDict.Count() > 0)
-                {
-                    sysPromptStr = _sysPromptStr + GetDictStr(usedDict);
-                }
-                else
-                {
-                    sysPromptStr = _sysPromptStr;
-                }
+                sysPromptStr = _sysPromptStr + (usedDict.Any() ? GetDictStr(usedDict) : string.Empty);
             }
             else
             {
