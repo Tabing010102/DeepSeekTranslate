@@ -22,7 +22,7 @@ namespace DeepSeekTranslate
             return dictStr;
         }
 
-        private string GetSysPromptStr(string originalText = "")
+        private string GetSysPromptStr(string originalText)
         {
             string sysPromptStr;
             if (_dictMode == DictMode.None)
