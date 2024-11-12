@@ -74,7 +74,7 @@ namespace DeepSeekTranslate
                 XuaLogger.AutoTranslator.Warn(ex, $"Failed to parse max tokens mode: {context.GetOrCreateSetting<string>("DeepSeek", "MaxTokensMode", "Static")}, falling back to Static");
                 _maxTokensMode = MaxTokensMode.Static;
             }
-            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxTokens", "1024"), out _staticMaxTokens) || _staticMaxTokens <= 0) { _staticMaxTokens = 1024; }
+            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "StaticMaxTokens", "1024"), out _staticMaxTokens) || _staticMaxTokens <= 0) { _staticMaxTokens = 1024; }
             if (!double.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "DynamicMaxTokensMultiplier", "1.5"), out _dynamicMaxTokensMultiplier) || _dynamicMaxTokensMultiplier <= 0) { _dynamicMaxTokensMultiplier = 1.0; }
             #endregion
             // init dict
