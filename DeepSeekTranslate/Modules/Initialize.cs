@@ -63,7 +63,7 @@ namespace DeepSeekTranslate
             _endpoint = context.GetOrCreateSetting<string>("DeepSeek", "Endpoint", "https://api.deepseek.com/chat/completions");
             _apiKey = context.GetOrCreateSetting<string>("DeepSeek", "ApiKey", "YOUR_API_KEY_HERE");
             _model = context.GetOrCreateSetting<string>("DeepSeek", "Model", "deepseek-chat");
-            if (!double.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "Temperature", "1.3"), out _temperature) || _temperature <= 0) { _temperature = 1.3; }
+            if (!double.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "Temperature", "1.3"), out _temperature)) { _temperature = 1.3; }
             #region maxTokens
             try
             {
@@ -75,7 +75,7 @@ namespace DeepSeekTranslate
                 _maxTokensMode = MaxTokensMode.Static;
             }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "StaticMaxTokens", "1024"), out _staticMaxTokens) || _staticMaxTokens <= 0) { _staticMaxTokens = 1024; }
-            if (!double.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "DynamicMaxTokensMultiplier", "1.5"), out _dynamicMaxTokensMultiplier) || _dynamicMaxTokensMultiplier <= 0) { _dynamicMaxTokensMultiplier = 1.0; }
+            if (!double.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "DynamicMaxTokensMultiplier", "1.5"), out _dynamicMaxTokensMultiplier) || _dynamicMaxTokensMultiplier <= 0) { _dynamicMaxTokensMultiplier = 1.5; }
             #endregion
             // init dict
             #region init dict
