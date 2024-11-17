@@ -164,8 +164,8 @@ namespace DeepSeekTranslate
             {
                 ThreadPool.GetMinThreads(out int minWorkerThreads, out int minCompletionPortThreads);
                 ThreadPool.GetMaxThreads(out int maxWorkerThreads, out int maxCompletionPortThreads);
-                XuaLogger.AutoTranslator.Info($"Initialize: Setting ThreadPool min threads to {Math.Max(minWorkerThreads, _minThreadCount)} " +
-                    $"and max threads to {Math.Max(minCompletionPortThreads, _minThreadCount)}");
+                XuaLogger.AutoTranslator.Info($"Initialize: Setting ThreadPool min threads to ({Math.Max(minWorkerThreads, _minThreadCount)}, {Math.Max(minCompletionPortThreads, _minThreadCount)}) " +
+                    $"and max threads to ({Math.Max(maxWorkerThreads, _maxThreadCount)}, {Math.Max(maxCompletionPortThreads, _maxThreadCount)})");
                 ThreadPool.SetMinThreads(Math.Max(minWorkerThreads, _minThreadCount), Math.Max(minCompletionPortThreads, _minThreadCount));
                 ThreadPool.SetMaxThreads(Math.Max(maxWorkerThreads, _maxThreadCount), Math.Max(maxCompletionPortThreads, _maxThreadCount));
             }
