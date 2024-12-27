@@ -28,6 +28,7 @@ StaticMaxTokens=1024
 DynamicMaxTokensMultiplier=1.5
 DictMode=Full
 Dict={"想太":["想太","男主人公"],"ダイヤ":["戴亚","女"]}
+AddEndingAssistantPrompt=True
 SplitByLine=False
 MaxConcurrency=4
 BatchTranslate=True
@@ -78,6 +79,10 @@ Debug=False
     - Translation dictionary, must be empty or in valid JSON format, parsing failure will fall back to empty
     - Dictionary format `{"src":["dst","info"]}`
     - If `info` does not exist, it can be written as `{"src":["dst"]}` or `{"src":"dst"}`
+
+- **AddEndingAssistantPrompt**:
+  - `True` (default): Add an ending assistant prompt, which may reduce the probability of the model refusing to respond, but will increase cache-missed tokens
+  - `False`: Do not add an ending assistant prompt, saving tokens
 
 - **SplitByLine**:
   - `False` (default): Do not split the original text by line

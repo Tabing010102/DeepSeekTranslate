@@ -28,6 +28,7 @@ StaticMaxTokens=1024
 DynamicMaxTokensMultiplier=1.5
 DictMode=Full
 Dict={"想太":["想太","男主人公"],"ダイヤ":["戴亚","女"]}
+AddEndingAssistantPrompt=True
 SplitByLine=False
 MaxConcurrency=4
 BatchTranslate=True
@@ -78,6 +79,10 @@ Debug=False
     - 翻译字典，必须为空或合法的Json格式，解析失败将会视为空
     - 字典格式`{"src":["dst","info"]}`
     - 其中`info`不存在可以写成`{"src":["dst"]}`或者`{"src":"dst"}`
+
+- **AddEndingAssistantPrompt**：
+  - `True`（默认）：添加结束助手提示，可能降低模型不回答的概率，但会增加未命中缓存的token数
+  - `False`：不添加结束助手提示，节省token
 
 - **SplitByLine**：
   - `False`（默认）：不按行分割原始文本
