@@ -16,7 +16,7 @@ namespace DeepSeekTranslate
         private IEnumerator TranslateSingle(string line, StringBuilder translatedTextBuilder)
         {
             // create prompt
-            var userTrPrompt = $"###这是你接下来的翻译任务，原文文本如下###\n" +
+            var userTrPrompt = $"###这是你接下来的翻译任务，原文文本如下\n" +
                 $"```json\n" +
                 $"{{\"0\": \"{line}\"}}\n" +
                 $"```";

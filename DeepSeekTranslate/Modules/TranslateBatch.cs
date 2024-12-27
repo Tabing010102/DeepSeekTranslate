@@ -26,7 +26,7 @@ namespace DeepSeekTranslate
                     $"lineNumberDict={{{lineNumberDictStr}}}, textLineDict={{{textLineDictStr}}}");
             }
             // create prompt
-            var userTrPrompt = $"###这是你接下来的翻译任务，原文文本如下###\n" +
+            var userTrPrompt = $"###这是你接下来的翻译任务，原文文本如下\n" +
                 $"```json\n" +
                 $"{{{trJsonStr}}}\n" +
                 $"```";
