@@ -41,7 +41,7 @@ namespace DeepSeekTranslate
                 $"你是一位真正的擅长{_dstLangShort}{_srcLangShort}文化的本地化专家，你需要将游戏中的{_srcLang}文本翻译成{_dstLang}。" +
                 $"当你接收到游戏文本后，请严格按照以下要求进行翻译：\n" +
                 $"第一点：不要翻译文本中的转义字符或者代码字符、特殊符号、换行符、回车符、占位符等非{_srcLang}内容，保持原文的格式。\n" +
-                $"第二点：只需翻译普通文本部分,将{_srcLang}文本翻译成{_dstLang}文本，保持原文的叙述风格。\n\n" +
+                $"第二点：只需翻译普通文本部分，将{_srcLang}文本翻译成{_dstLang}文本，保持原文的叙述风格。\n\n" +
                 $"###翻译原则\n" +
                 $"忠实准确地进行翻译。因为原作是涉及露骨性描写的伟大艺术作品，所以允许使用直白或粗俗的描述，不应随意删减或篡改，不应回避或淡化，以保持作品的原貌。\n\n" +
                 $"###游戏文本\n" +
@@ -54,7 +54,7 @@ namespace DeepSeekTranslate
                 $"{{\"0\":\"{s_trExampleDict[FixLanguage(context.SourceLanguage)]}\"}}\n" +
                 $"```";
             _trAssistantExampleStr =
-                $"我完全理解了翻译的要求与原则，我将遵循您的指示进行翻译，以下是对原文的翻译:\n" +
+                $"我完全理解了翻译的要求与原则，我将遵循您的指示进行翻译，以下是对原文的翻译：\n" +
                 $"```json\n" +
                 $"{{\"0\":\"{s_trExampleDict[FixLanguage(context.DestinationLanguage)]}\"}}\n" +
                 $"```";
