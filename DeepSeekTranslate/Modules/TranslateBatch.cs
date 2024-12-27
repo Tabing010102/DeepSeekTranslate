@@ -35,7 +35,8 @@ namespace DeepSeekTranslate
                 new PromptMessage("system", GetSysPromptStr(trJsonStr)),
                 new PromptMessage("user", _trUserExampleStr),
                 new PromptMessage("assistant", _trAssistantExampleStr),
-                new PromptMessage("user", userTrPrompt)
+                new PromptMessage("user", userTrPrompt),
+                new PromptMessage("assistant", "我完全理解了翻译的要求与原则，我将遵循您的指示进行翻译，以下是对原文的翻译:")
             }, GetMaxTokens(trJsonStr));
             var promptBytes = Encoding.UTF8.GetBytes(prompt);
             // create request

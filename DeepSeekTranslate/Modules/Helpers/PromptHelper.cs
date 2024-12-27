@@ -18,7 +18,7 @@ namespace DeepSeekTranslate
                 var info = entry.Value[1];
                 dictList.Add($"|\t{src}\t|\t{dst}\t|\t{(string.IsNullOrEmpty(info) ? " " : info)}\t|");
             }
-            var dictStr = s_dictBaseStr + string.Join("\n", dictList.ToArray());
+            var dictStr = s_dictBaseStr + string.Join("\n", dictList.ToArray()) + "\n--------------------------------------------------";
             return dictStr;
         }
 
