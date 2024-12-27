@@ -24,6 +24,7 @@ namespace DeepSeekTranslate
         private double _dynamicMaxTokensMultiplier;
         private DictMode _dictMode;
         private Dictionary<string, List<string>> _dict;
+        private bool _addEndingAssistantPrompt;
         private bool _splitByLine;
         private int _maxConcurrency;
         private bool _batchTranslate;

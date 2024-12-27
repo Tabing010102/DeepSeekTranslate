@@ -146,6 +146,7 @@ namespace DeepSeekTranslate
                 }
             }
             #endregion
+            if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "AddEndingAssistantPrompt", "True"), out _addEndingAssistantPrompt)) { _addEndingAssistantPrompt = true; }
             if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "SplitByLine", "False"), out _splitByLine)) { _splitByLine = false; }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxConcurrency", "1"), out _maxConcurrency) || _maxConcurrency < 1) { _maxConcurrency = 1; }
             if (ServicePointManager.DefaultConnectionLimit < _maxConcurrency)
