@@ -1,4 +1,5 @@
 ﻿using DeepSeekTranslate.Models;
+using DeepSeekTranslate.Modules.Helpers;
 using SimpleJSON;
 using System;
 using System.Collections;
@@ -68,9 +69,7 @@ namespace DeepSeekTranslate
                     }
                 }
                 if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: responseText={{{responseText}}}"); }
-                var jsonObj = JSON.Parse(responseText);
-                var respMsg = jsonObj.AsObject["choices"].AsArray[0]["message"];
-                var contents = JSON.Parse(respMsg["content"]);
+                var contents = JsonResponseHelper.ParseJsonResponse(responseText, _debug);
                 if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: contents.Count={{{contents.Count}}}, lineCount={{{lineCount}}}"); }
                 if (contents.Count != lineCount)
                 {

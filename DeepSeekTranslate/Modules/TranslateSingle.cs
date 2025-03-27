@@ -1,4 +1,5 @@
 ﻿using DeepSeekTranslate.Models;
+using DeepSeekTranslate.Modules.Helpers;
 using SimpleJSON;
 using System;
 using System.Collections;
@@ -65,9 +66,7 @@ namespace DeepSeekTranslate
                     }
                 }
 
-                var jsonObj = JSON.Parse(responseText);
-                var respMsg = jsonObj.AsObject["choices"].AsArray[0]["message"];
-                var translatedLine = JSON.Parse(respMsg["content"])["0"].ToString().Trim('\"');
+                var translatedLine = JsonResponseHelper.ParseJsonResponse(responseText, _debug)["0"].ToString().Trim('\"');
                 if (_splitByLine) { translatedTextBuilder.AppendLine(translatedLine); }
                 else { translatedTextBuilder.Append(translatedLine); }
             }
@@ -88,9 +87,7 @@ namespace DeepSeekTranslate
                             }
                         }
                     }
-                    var jsonObj = JSON.Parse(responseText);
-                    var respMsg = jsonObj.AsObject["choices"].AsArray[0]["message"];
-                    var translatedLine = JSON.Parse(respMsg["content"])["0"].ToString().Trim('\"');
+                    var translatedLine = JsonResponseHelper.ParseJsonResponse(responseText, _debug)["0"].ToString().Trim('\"');
                     if (_splitByLine) { translatedTextBuilder.AppendLine(translatedLine); }
                     else { translatedTextBuilder.Append(translatedLine); }
 
