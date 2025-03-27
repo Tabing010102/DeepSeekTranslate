@@ -7,16 +7,14 @@ namespace DeepSeekTranslate.Modules.Helpers
 {
     public static class JsonResponseHelper
     {
-        private static readonly Regex s_jsonObjectRegex = new Regex(@"\{(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))\}", RegexOptions.Singleline | RegexOptions.Compiled);
-
         public static JSONNode ParseJsonResponse(string responseText, bool debug)
         {
+            var content = JSON.Parse(responseText)["choices"].AsArray[0]["message"]["content"];
+
             // Direct parsing
             try
             {
-                var jsonObj = JSON.Parse(responseText);
-                var respMsg = jsonObj.AsObject["choices"].AsArray[0]["message"];
-                return JSON.Parse(respMsg["content"]);
+                return JSON.Parse(content);
             }
             catch (Exception ex)
             {
@@ -26,12 +24,10 @@ namespace DeepSeekTranslate.Modules.Helpers
             // Try to extract JSON content from the response
             try
             {
-                string jsonContent = ExtractLastJsonContent(responseText);
+                string jsonContent = ExtractJsonContent(content);
                 if (!string.IsNullOrEmpty(jsonContent))
                 {
-                    var jsonObj = JSON.Parse(jsonContent);
-                    var respMsg = jsonObj.AsObject["choices"].AsArray[0]["message"];
-                    return JSON.Parse(respMsg["content"]);
+                    return JSON.Parse(jsonContent);
                 }
             }
             catch (Exception ex)
@@ -42,21 +38,17 @@ namespace DeepSeekTranslate.Modules.Helpers
             throw new Exception($"Failed to parse JSON from response: {responseText}");
         }
 
-        private static string ExtractLastJsonContent(string text)
+        private static string ExtractJsonContent(string text)
         {
-            // Look for content enclosed in {} or []
-            var objectMatches = s_jsonObjectRegex.Matches(text);
-            // var arrayMatches = Regex.Matches(text, @"\[(?:[^\[\]]|(?<open>\[)|(?<-open>\]))+(?(open)(?!))\]", RegexOptions.Singleline);
+            int firstBrace = text.IndexOf('{');
+            int lastBrace = text.LastIndexOf('}');
 
-            string lastJsonContent = null;
-
-            // Find the last JSON object
-            if (objectMatches.Count > 0)
+            if (firstBrace >= 0 && lastBrace > firstBrace)
             {
-                lastJsonContent = objectMatches[objectMatches.Count - 1].Value;
+                return text.Substring(firstBrace, lastBrace - firstBrace + 1);
             }
 
-            return lastJsonContent;
+            return null;
         }
     }
 }

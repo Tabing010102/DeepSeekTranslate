@@ -1,6 +1,5 @@
 ﻿using DeepSeekTranslate.Models;
 using DeepSeekTranslate.Modules.Helpers;
-using SimpleJSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -53,63 +52,75 @@ namespace DeepSeekTranslate
             if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: request filled"); }
 
             bool isCompleted = false;
+            Exception catchedException = null;
             ThreadPool.QueueUserWorkItem((state) =>
             {
-                // get response
-                string responseText;
-                if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: sending request"); }
-                using (var response = request.GetResponse())
+                try
                 {
-                    using (var responseStream = response.GetResponseStream())
+                    // get response
+                    string responseText;
+                    if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: sending request"); }
+                    using (var response = request.GetResponse())
                     {
-                        using (var reader = new StreamReader(responseStream))
+                        using (var responseStream = response.GetResponseStream())
                         {
-                            responseText = reader.ReadToEnd();
+                            using (var reader = new StreamReader(responseStream))
+                            {
+                                responseText = reader.ReadToEnd();
+                            }
                         }
                     }
-                }
-                if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: responseText={{{responseText}}}"); }
-                var contents = JsonResponseHelper.ParseJsonResponse(responseText, _debug);
-                if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: contents.Count={{{contents.Count}}}, lineCount={{{lineCount}}}"); }
-                if (contents.Count != lineCount)
-                {
-                    throw new Exception("The number of translated lines does not match the number of lines to be translated.");
-                }
-                int textPos = 0;
-                for (int i = 0; i < totalLineCount; i++)
-                {
-                    if (textLineDict.ContainsKey(i)) { textPos = textLineDict[i]; }
-                    if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}"); }
-                    if (_splitByLine)
+                    if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: responseText={{{responseText}}}"); }
+                    var contents = JsonResponseHelper.ParseJsonResponse(responseText, _debug);
+                    if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: contents.Count={{{contents.Count}}}, lineCount={{{lineCount}}}"); }
+                    if (contents.Count != lineCount)
                     {
-                        if (!lineNumberDict.ContainsKey(i))
+                        throw new Exception("The number of translated lines does not match the number of lines to be translated.");
+                    }
+                    int textPos = 0;
+                    for (int i = 0; i < totalLineCount; i++)
+                    {
+                        if (textLineDict.ContainsKey(i)) { textPos = textLineDict[i]; }
+                        if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}"); }
+                        if (_splitByLine)
                         {
-                            translatedTextBuilders[textPos].AppendLine();
+                            if (!lineNumberDict.ContainsKey(i))
+                            {
+                                translatedTextBuilders[textPos].AppendLine();
+                            }
+                            else
+                            {
+                                if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, lineNumberDict[i]={{{lineNumberDict[i]}}}, contents[lineNumberDict[i]]={{{contents[lineNumberDict[i].ToString()].ToString().Trim('\"')}}}"); }
+                                translatedTextBuilders[textPos].AppendLine(contents[lineNumberDict[i].ToString()].ToString().Trim('\"'));
+                                if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}, translatedTextBuilders[textPos]={{{translatedTextBuilders[textPos]}}}"); }
+                            }
                         }
                         else
                         {
-                            if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, lineNumberDict[i]={{{lineNumberDict[i]}}}, contents[lineNumberDict[i]]={{{contents[lineNumberDict[i].ToString()].ToString().Trim('\"')}}}"); }
-                            translatedTextBuilders[textPos].AppendLine(contents[lineNumberDict[i].ToString()].ToString().Trim('\"'));
-                            if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}, translatedTextBuilders[textPos]={{{translatedTextBuilders[textPos]}}}"); }
+                            if (lineNumberDict.ContainsKey(i))
+                            {
+                                if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, lineNumberDict[i]={{{lineNumberDict[i]}}}, contents[lineNumberDict[i].ToString()]={{{contents[lineNumberDict[i].ToString()].ToString().Trim('\"')}}}"); }
+                                translatedTextBuilders[textPos].Append(contents[lineNumberDict[i].ToString()].ToString().Trim('\"'));
+                                if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}, translatedTextBuilders[textPos]={{{translatedTextBuilders[textPos]}}}"); }
+                            }
                         }
                     }
-                    else
-                    {
-                        if (lineNumberDict.ContainsKey(i))
-                        {
-                            if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, lineNumberDict[i]={{{lineNumberDict[i]}}}, contents[lineNumberDict[i].ToString()]={{{contents[lineNumberDict[i].ToString()].ToString().Trim('\"')}}}"); }
-                            translatedTextBuilders[textPos].Append(contents[lineNumberDict[i].ToString()].ToString().Trim('\"'));
-                            if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: i={{{i}}}, textPos={{{textPos}}}, translatedTextBuilders[textPos]={{{translatedTextBuilders[textPos]}}}"); }
-                        }
-                    }
-                }
 
-                isCompleted = true;
-                if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: translatedTexts={{{string.Join(", ", translatedTextBuilders.Select(tb => tb.ToString()).ToArray())}}}"); }
+                    isCompleted = true;
+                    if (_debug) { XuaLogger.AutoTranslator.Debug($"TranslateBatch: translatedTexts={{{string.Join(", ", translatedTextBuilders.Select(tb => tb.ToString()).ToArray())}}}"); }
+                }
+                catch (Exception e)
+                {
+                    catchedException = e;
+                }
             });
 
             while (!isCompleted)
             {
+                if (catchedException != null)
+                {
+                    throw catchedException;
+                }
                 yield return null;
             }
         }

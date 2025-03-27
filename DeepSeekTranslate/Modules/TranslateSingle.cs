@@ -1,6 +1,5 @@
 ﻿using DeepSeekTranslate.Models;
 using DeepSeekTranslate.Modules.Helpers;
-using SimpleJSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -73,29 +72,41 @@ namespace DeepSeekTranslate
             else
             {
                 bool isCompleted = false;
+                Exception catchedException = null;
                 ThreadPool.QueueUserWorkItem((state) =>
                 {
-                    // get response
-                    string responseText;
-                    using (var response = request.GetResponse())
+                    try
                     {
-                        using (var responseStream = response.GetResponseStream())
+                        // get response
+                        string responseText;
+                        using (var response = request.GetResponse())
                         {
-                            using (var reader = new StreamReader(responseStream))
+                            using (var responseStream = response.GetResponseStream())
                             {
-                                responseText = reader.ReadToEnd();
+                                using (var reader = new StreamReader(responseStream))
+                                {
+                                    responseText = reader.ReadToEnd();
+                                }
                             }
                         }
-                    }
-                    var translatedLine = JsonResponseHelper.ParseJsonResponse(responseText, _debug)["0"].ToString().Trim('\"');
-                    if (_splitByLine) { translatedTextBuilder.AppendLine(translatedLine); }
-                    else { translatedTextBuilder.Append(translatedLine); }
+                        var translatedLine = JsonResponseHelper.ParseJsonResponse(responseText, _debug)["0"].ToString().Trim('\"');
+                        if (_splitByLine) { translatedTextBuilder.AppendLine(translatedLine); }
+                        else { translatedTextBuilder.Append(translatedLine); }
 
-                    isCompleted = true;
+                        isCompleted = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        catchedException = ex;
+                    }
                 });
 
                 while (!isCompleted)
                 {
+                    if (catchedException != null)
+                    {
+                        throw catchedException;
+                    }
                     yield return null;
                 }
             }
