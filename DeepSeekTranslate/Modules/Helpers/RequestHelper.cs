@@ -44,7 +44,7 @@ namespace DeepSeekTranslate
             }
             else if (_maxTokensMode == MaxTokensMode.Dynamic)
             {
-                return (int)Math.Ceiling(originalText.Length * _dynamicMaxTokensMultiplier);
+                return Math.Max((int)Math.Ceiling(originalText.Length * _dynamicMaxTokensMultiplier), 20);
             }
             else
             {
