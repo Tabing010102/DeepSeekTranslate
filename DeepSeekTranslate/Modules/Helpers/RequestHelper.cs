@@ -25,7 +25,6 @@ namespace DeepSeekTranslate
                 $"\"response_format\":{{\"type\":\"json_object\"}}," +
                 $"\"stop\":null," +
                 $"\"stream\":false," +
-                $"\"stream_options\":null," +
                 $"\"temperature\":{_temperature}," +
                 $"\"top_p\":1," +
                 $"\"tools\":null," +
