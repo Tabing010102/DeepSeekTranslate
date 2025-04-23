@@ -31,7 +31,7 @@ namespace DeepSeekTranslate
                 $"\"tool_choice\":\"none\"," +
                 $"\"logprobs\":false," +
                 $"\"top_logprobs\":null}}";
-            if (_debug) { XuaLogger.AutoTranslator.Debug($"MakeRequestStr: retStr={{{retStr}}}"); }
+            if (_debug) { XuaLogger.AutoTranslator.Debug($"DeepSeekTranslate.MakeRequestStr: retStr={{{retStr}}}"); }
             return retStr;
         }
 

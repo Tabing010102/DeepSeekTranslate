@@ -71,7 +71,7 @@ namespace DeepSeekTranslate
             }
             catch (Exception ex)
             {
-                XuaLogger.AutoTranslator.Warn(ex, $"Initialize: Failed to parse max tokens mode: {context.GetOrCreateSetting<string>("DeepSeek", "MaxTokensMode", "Static")}, falling back to Static");
+                XuaLogger.AutoTranslator.Warn(ex, $"DeepSeekTranslate.Initialize: Failed to parse max tokens mode: {context.GetOrCreateSetting<string>("DeepSeek", "MaxTokensMode", "Static")}, falling back to Static");
                 _maxTokensMode = MaxTokensMode.Static;
             }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "StaticMaxTokens", "1024"), out _staticMaxTokens) || _staticMaxTokens <= 0) { _staticMaxTokens = 1024; }
@@ -85,13 +85,13 @@ namespace DeepSeekTranslate
             }
             catch (Exception ex)
             {
-                XuaLogger.AutoTranslator.Warn(ex, $"Initialize: Failed to parse dict mode: {context.GetOrCreateSetting<string>("DeepSeek", "DictMode", "None")}, falling back to None");
+                XuaLogger.AutoTranslator.Warn(ex, $"DeepSeekTranslate.Initialize: Failed to parse dict mode: {context.GetOrCreateSetting<string>("DeepSeek", "DictMode", "None")}, falling back to None");
                 _dictMode = DictMode.None;
             }
             var dictStr = context.GetOrCreateSetting<string>("DeepSeek", "Dict", string.Empty);
             if (string.IsNullOrEmpty(dictStr))
             {
-                XuaLogger.AutoTranslator.Warn("Initialize: Dict is empty, setting DictMode to None");
+                XuaLogger.AutoTranslator.Warn("DeepSeekTranslate.Initialize: Dict is empty, setting DictMode to None");
                 _dictMode = DictMode.None;
                 _fullDictStr = string.Empty;
             }
@@ -140,7 +140,7 @@ namespace DeepSeekTranslate
                 }
                 catch (Exception ex)
                 {
-                    XuaLogger.AutoTranslator.Warn(ex, $"Initialize: Failed to parse dict string: {dictStr}");
+                    XuaLogger.AutoTranslator.Warn(ex, $"DeepSeekTranslate.Initialize: Failed to parse dict string: {dictStr}");
                     _dictMode = DictMode.None;
                     _fullDictStr = string.Empty;
                 }
@@ -151,7 +151,7 @@ namespace DeepSeekTranslate
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxConcurrency", "1"), out _maxConcurrency) || _maxConcurrency < 1) { _maxConcurrency = 1; }
             if (ServicePointManager.DefaultConnectionLimit < _maxConcurrency)
             {
-                XuaLogger.AutoTranslator.Info($"Initialize: Setting ServicePointManager.DefaultConnectionLimit to {_maxConcurrency}");
+                XuaLogger.AutoTranslator.Info($"DeepSeekTranslate.Initialize: Setting ServicePointManager.DefaultConnectionLimit to {_maxConcurrency}");
                 ServicePointManager.DefaultConnectionLimit = _maxConcurrency;
             }
             if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "BatchTranslate", "False"), out _batchTranslate)) { _batchTranslate = false; }
@@ -165,7 +165,7 @@ namespace DeepSeekTranslate
             {
                 ThreadPool.GetMinThreads(out int minWorkerThreads, out int minCompletionPortThreads);
                 ThreadPool.GetMaxThreads(out int maxWorkerThreads, out int maxCompletionPortThreads);
-                XuaLogger.AutoTranslator.Info($"Initialize: Setting ThreadPool min threads to ({Math.Max(minWorkerThreads, _minThreadCount)}, {Math.Max(minCompletionPortThreads, _minThreadCount)}) " +
+                XuaLogger.AutoTranslator.Info($"DeepSeekTranslate.Initialize: Setting ThreadPool min threads to ({Math.Max(minWorkerThreads, _minThreadCount)}, {Math.Max(minCompletionPortThreads, _minThreadCount)}) " +
                     $"and max threads to ({Math.Max(maxWorkerThreads, _maxThreadCount)}, {Math.Max(maxCompletionPortThreads, _maxThreadCount)})");
                 ThreadPool.SetMinThreads(Math.Max(minWorkerThreads, _minThreadCount), Math.Max(minCompletionPortThreads, _minThreadCount));
                 ThreadPool.SetMaxThreads(Math.Max(maxWorkerThreads, _maxThreadCount), Math.Max(maxCompletionPortThreads, _maxThreadCount));

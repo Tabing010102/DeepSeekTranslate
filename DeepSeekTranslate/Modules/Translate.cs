@@ -17,7 +17,7 @@ namespace DeepSeekTranslate
             {
                 if (_debug)
                 {
-                    XuaLogger.AutoTranslator.Debug($"Translate: context.UntranslatedTexts={{{string.Join(", ", context.UntranslatedTexts)}}}");
+                    XuaLogger.AutoTranslator.Debug($"DeepSeekTranslate.Translate: context.UntranslatedTexts={{{string.Join(", ", context.UntranslatedTexts)}}}");
                 }
                 var untranslatedTexts = context.UntranslatedTexts;
                 var lines = new List<string>();
@@ -76,7 +76,7 @@ namespace DeepSeekTranslate
 
                 if (_debug)
                 {
-                    XuaLogger.AutoTranslator.Debug($"Translate: translatedTexts={{{string.Join(", ", translatedTexts)}}}");
+                    XuaLogger.AutoTranslator.Debug($"DeepSeekTranslate.Translate: translatedTexts={{{string.Join(", ", translatedTexts)}}}");
                 }
                 context.Complete(translatedTexts);
             }

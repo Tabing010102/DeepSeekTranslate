@@ -18,7 +18,7 @@ namespace DeepSeekTranslate.Modules.Helpers
             }
             catch (Exception ex)
             {
-                if (debug) { XuaLogger.AutoTranslator.Debug($"JsonResponseHelper: Direct JSON parsing failed: {ex.Message}"); }
+                if (debug) { XuaLogger.AutoTranslator.Debug($"DeepSeekTranslate.JsonResponseHelper: Direct JSON parsing failed: {ex.Message}"); }
             }
 
             // Try to extract JSON content from the response
@@ -32,7 +32,7 @@ namespace DeepSeekTranslate.Modules.Helpers
             }
             catch (Exception ex)
             {
-                if (debug) { XuaLogger.AutoTranslator.Debug($"JsonResponseHelper: JSON extraction failed: {ex.Message}"); }
+                if (debug) { XuaLogger.AutoTranslator.Debug($"DeepSeekTranslate.JsonResponseHelper: JSON extraction failed: {ex.Message}"); }
             }
 
             throw new Exception($"Failed to parse JSON from response: {responseText}");
