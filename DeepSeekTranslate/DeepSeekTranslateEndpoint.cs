@@ -30,6 +30,7 @@ namespace DeepSeekTranslate
         private bool _batchTranslate;
         private int _maxTranslationsPerRequest;
         private int _coroutineWaitCountBeforeRead;
+        private int _maxRetries;
         private bool _useThreadPool;
         private int _minThreadCount;
         private int _maxThreadCount;

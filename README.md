@@ -1,7 +1,7 @@
 # DeepSeekTranslate
 
 DeepSeek API Translator for XUnity.AutoTranslator  
-[README](README.md) | [¼òÌåÖÐÎÄËµÃ÷](README_zh_CN.md)  
+[README](README.md) | [ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½](README_zh_CN.md)  
 
 ## Warning
 
@@ -27,13 +27,14 @@ MaxTokensMode=Dynamic
 StaticMaxTokens=1024
 DynamicMaxTokensMultiplier=1.5
 DictMode=Full
-Dict={"ÏëÌ«":["ÏëÌ«","ÄÐÖ÷ÈË¹«"],"¥À¥¤¥ä":["´÷ÑÇ","Å®"]}
+Dict={"ï¿½ï¿½Ì«":["ï¿½ï¿½Ì«","ï¿½ï¿½ï¿½ï¿½ï¿½Ë¹ï¿½"],"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½":["ï¿½ï¿½ï¿½ï¿½","Å®"]}
 AddEndingAssistantPrompt=True
 SplitByLine=False
 MaxConcurrency=4
 BatchTranslate=True
 MaxTranslationsPerRequest=5
 CoroutineWaitCountBeforeRead=150
+MaxRetries=1
 UseThreadPool=True
 MinThreadCount=
 MaxThreadCount=
@@ -103,6 +104,10 @@ Debug=False
 - **CoroutineWaitCountBeforeRead**:
   - Default: `150`
   - Description: Coroutine wait count before reading the response stream, only effective when `UseThreadPool` is `False`
+
+- **MaxRetries**:
+  - Default: `2`
+  - Description: Maximum retry attempts when request fails. Stops retrying immediately when encountering 429/503 error
 
 - **UseThreadPool**:
   - `True` (default): Use thread pool

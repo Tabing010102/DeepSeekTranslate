@@ -1,21 +1,21 @@
 # DeepSeekTranslate
 
-ÊÊÓÃÓÚ XUnity.AutoTranslator µÄ DeepSeek API ·­Òë²å¼ş  
-[README](README.md) | [¼òÌåÖĞÎÄËµÃ÷](README_zh_CN.md)  
+é€‚ç”¨äº XUnity.AutoTranslator çš„ DeepSeek API ç¿»è¯‘æ’ä»¶  
+[README](README.md) | [ç®€ä½“ä¸­æ–‡è¯´æ˜](README_zh_CN.md)  
 
-## ¾¯¸æ
+## è­¦å‘Š
 
-ÉĞÎ´ÍêÈ«²âÊÔ¡£Ê¹ÓÃÊ±Çë×ÔĞĞ³Ğµ£·çÏÕ
+å°šæœªå®Œå…¨æµ‹è¯•ã€‚ä½¿ç”¨æ—¶è¯·è‡ªè¡Œæ‰¿æ‹…é£é™©
 
-## ×¢ÒâÊÂÏî
+## æ³¨æ„äº‹é¡¹
 
-- ÔÚ²»Ê¹ÓÃÏß³Ì³Ø (`UseThreadPool`) Ê±£¬Ê¹ÓÃ DeepSeek ÔÚÏß API ½«µ÷ÓÃ×èÈûµÄ ReadToEnd ·½·¨À´¶ÁÈ¡ÏìÓ¦Á÷£¬Õâ¿ÉÄÜµ¼ÖÂÓ¦ÓÃ³ÌĞò¿¨ËÀ  
-  ÎªÁË¸ÄÉÆÌåÑé£¬¿ÉÒÔ½« `CoroutineWaitCountBeforeRead` ÉèÖÃÎª´óÓÚ 0 µÄÖµ£¬ÒÔµÈ´ıÖ¸¶¨ÊıÁ¿µÄĞ­³Ì£¨¿ÉÄÜÃ¿Ö¡µ÷ÓÃÒ»´Î£©£¬ÔÚµÈ´ıÆÚ¼ä·şÎñÆ÷¿ÉÄÜÄÜ¹»ÍêÈ«Éú³ÉÏìÓ¦
-- »ò¿ÉÒÔ³¢ÊÔÊ¹ÓÃ Nginx ×÷Îª·´Ïò´úÀíÀ´»º³å DeepSeek µÄÏìÓ¦£¬È»ºóÒ»´ÎĞÔ·¢ËÍ¸ø¿Í»§¶Ë  
-  ÔÚÕâÖÖÇé¿öÏÂ£¬¿ÉÒÔ½« `Endpoint` ÉèÖÃÎª Nginx ·şÎñÆ÷µØÖ·£¬²¢½« `CoroutineWaitCountBeforeRead` ÉèÖÃÎª `0`
-- Ê¹ÓÃÏß³Ì³ØÊ±£¬²»´æÔÚÒÔÉÏÎÊÌâ
+- åœ¨ä¸ä½¿ç”¨çº¿ç¨‹æ±  (`UseThreadPool`) æ—¶ï¼Œä½¿ç”¨ DeepSeek åœ¨çº¿ API å°†è°ƒç”¨é˜»å¡çš„ ReadToEnd æ–¹æ³•æ¥è¯»å–å“åº”æµï¼Œè¿™å¯èƒ½å¯¼è‡´åº”ç”¨ç¨‹åºå¡æ­»  
+  ä¸ºäº†æ”¹å–„ä½“éªŒï¼Œå¯ä»¥å°† `CoroutineWaitCountBeforeRead` è®¾ç½®ä¸ºå¤§äº 0 çš„å€¼ï¼Œä»¥ç­‰å¾…æŒ‡å®šæ•°é‡çš„åç¨‹ï¼ˆå¯èƒ½æ¯å¸§è°ƒç”¨ä¸€æ¬¡ï¼‰ï¼Œåœ¨ç­‰å¾…æœŸé—´æœåŠ¡å™¨å¯èƒ½èƒ½å¤Ÿå®Œå…¨ç”Ÿæˆå“åº”
+- æˆ–å¯ä»¥å°è¯•ä½¿ç”¨ Nginx ä½œä¸ºåå‘ä»£ç†æ¥ç¼“å†² DeepSeek çš„å“åº”ï¼Œç„¶åä¸€æ¬¡æ€§å‘é€ç»™å®¢æˆ·ç«¯  
+  åœ¨è¿™ç§æƒ…å†µä¸‹ï¼Œå¯ä»¥å°† `Endpoint` è®¾ç½®ä¸º Nginx æœåŠ¡å™¨åœ°å€ï¼Œå¹¶å°† `CoroutineWaitCountBeforeRead` è®¾ç½®ä¸º `0`
+- ä½¿ç”¨çº¿ç¨‹æ± æ—¶ï¼Œä¸å­˜åœ¨ä»¥ä¸Šé—®é¢˜
 
-## ÅäÖÃÊ¾Àı
+## é…ç½®ç¤ºä¾‹
 
 ```ini
 [DeepSeek]
@@ -27,95 +27,100 @@ MaxTokensMode=Dynamic
 StaticMaxTokens=1024
 DynamicMaxTokensMultiplier=1.5
 DictMode=Full
-Dict={"ÏëÌ«":["ÏëÌ«","ÄĞÖ÷ÈË¹«"],"¥À¥¤¥ä":["´÷ÑÇ","Å®"]}
+Dict={"æƒ³å¤ª":["æƒ³å¤ª","ç”·ä¸»äººå…¬"],"ãƒ€ã‚¤ãƒ¤":["æˆ´äºš","å¥³"]}
 AddEndingAssistantPrompt=True
 SplitByLine=False
 MaxConcurrency=4
 BatchTranslate=True
 MaxTranslationsPerRequest=5
 CoroutineWaitCountBeforeRead=150
+MaxRetries=1
 UseThreadPool=True
 MinThreadCount=
 MaxThreadCount=
 Debug=False
 ```
 
-## ÅäÖÃÏî
+## é…ç½®é¡¹
 
-- **Endpoint**£ºAPI URL
-  - Ä¬ÈÏÖµ£º`https://api.deepseek.com/chat/completions`
+- **Endpoint**ï¼šAPI URL
+  - é»˜è®¤å€¼ï¼š`https://api.deepseek.com/chat/completions`
 
-- **ApiKey**£ºAPI ÃÜÔ¿
-  - Ä¬ÈÏÖµ£º`YOUR_API_KEY_HERE`
+- **ApiKey**ï¼šAPI å¯†é’¥
+  - é»˜è®¤å€¼ï¼š`YOUR_API_KEY_HERE`
 
-- **Model**£º´«µİ¸øAPIµÄ`model`²ÎÊı
-  - Ä¬ÈÏÖµ£º`deepseek-chat`
+- **Model**ï¼šä¼ é€’ç»™APIçš„`model`å‚æ•°
+  - é»˜è®¤å€¼ï¼š`deepseek-chat`
 
-- **Temperature**£º
-  - Ä¬ÈÏÖµ£º`1.3`
+- **Temperature**ï¼š
+  - é»˜è®¤å€¼ï¼š`1.3`
 
-- **MaxTokensMode**£º
-  - `Static`£¨Ä¬ÈÏ£©£º¾²Ì¬`max_tokens`
-  - `Dynamic`£º¶¯Ì¬`max_tokens`£¬¸ù¾İÊäÈëÎÄ±¾³¤¶È¶¯Ì¬µ÷Õû
+- **MaxTokensMode**ï¼š
+  - `Static`ï¼ˆé»˜è®¤ï¼‰ï¼šé™æ€`max_tokens`
+  - `Dynamic`ï¼šåŠ¨æ€`max_tokens`ï¼Œæ ¹æ®è¾“å…¥æ–‡æœ¬é•¿åº¦åŠ¨æ€è°ƒæ•´
 
-- **StaticMaxTokens**£º
-  - Ä¬ÈÏÖµ£º`1024`
-  - ËµÃ÷£ºµ± `MaxTokensMode` Îª `Static` Ê±µÄ·¢ËÍµÄ`max_tokens`
+- **StaticMaxTokens**ï¼š
+  - é»˜è®¤å€¼ï¼š`1024`
+  - è¯´æ˜ï¼šå½“ `MaxTokensMode` ä¸º `Static` æ—¶çš„å‘é€çš„`max_tokens`
 
-- **DynamicMaxTokensMultiplier**£º
-  - Ä¬ÈÏÖµ£º`1.5`
-  - ËµÃ÷£ºµ± `MaxTokensMode` Îª `Dynamic` Ê±£¬`max_tokens`ÉèÖÃÎª¹¹½¨µÄÎ´·­Òëjson×Ö·û´®×Ö·ûÊıµÄ±¶Êı
+- **DynamicMaxTokensMultiplier**ï¼š
+  - é»˜è®¤å€¼ï¼š`1.5`
+  - è¯´æ˜ï¼šå½“ `MaxTokensMode` ä¸º `Dynamic` æ—¶ï¼Œ`max_tokens`è®¾ç½®ä¸ºæ„å»ºçš„æœªç¿»è¯‘jsonå­—ç¬¦ä¸²å­—ç¬¦æ•°çš„å€æ•°
 
-- **DictMode**£º
-  - `None`£¨Ä¬ÈÏ£©£º²»Ê¹ÓÃ×Öµä
-  - `Full`£ºÊ¹ÓÃÍêÕû×Öµä
-  - `MatchOriginalText`£ºÊ¹ÓÃÆ¥ÅäÔ­Ê¼ÎÄ±¾µÄ×Öµä
-  - ËµÃ÷£º
-    - Ê¹ÓÃ¹Ù·½ API ÇÒÆôÓÃ×ÖµäÊ±£¬ÍÆ¼öÊ¹ÓÃ `Full` Ä£Ê½£¬¿ÉÒÔ×î´ó»¯ÀûÓÃ»º´æ£¬½µµÍ·ÑÓÃ
+- **DictMode**ï¼š
+  - `None`ï¼ˆé»˜è®¤ï¼‰ï¼šä¸ä½¿ç”¨å­—å…¸
+  - `Full`ï¼šä½¿ç”¨å®Œæ•´å­—å…¸
+  - `MatchOriginalText`ï¼šä½¿ç”¨åŒ¹é…åŸå§‹æ–‡æœ¬çš„å­—å…¸
+  - è¯´æ˜ï¼š
+    - ä½¿ç”¨å®˜æ–¹ API ä¸”å¯ç”¨å­—å…¸æ—¶ï¼Œæ¨èä½¿ç”¨ `Full` æ¨¡å¼ï¼Œå¯ä»¥æœ€å¤§åŒ–åˆ©ç”¨ç¼“å­˜ï¼Œé™ä½è´¹ç”¨
 
-- **Dict**£º
-  - Ä¬ÈÏÖµ£º¿Õ×Ö·û´®
-  - ËµÃ÷£º
-    - ·­Òë×Öµä£¬±ØĞëÎª¿Õ»òºÏ·¨µÄJson¸ñÊ½£¬½âÎöÊ§°Ü½«»áÊÓÎª¿Õ
-    - ×Öµä¸ñÊ½`{"src":["dst","info"]}`
-    - ÆäÖĞ`info`²»´æÔÚ¿ÉÒÔĞ´³É`{"src":["dst"]}`»òÕß`{"src":"dst"}`
+- **Dict**ï¼š
+  - é»˜è®¤å€¼ï¼šç©ºå­—ç¬¦ä¸²
+  - è¯´æ˜ï¼š
+    - ç¿»è¯‘å­—å…¸ï¼Œå¿…é¡»ä¸ºç©ºæˆ–åˆæ³•çš„Jsonæ ¼å¼ï¼Œè§£æå¤±è´¥å°†ä¼šè§†ä¸ºç©º
+    - å­—å…¸æ ¼å¼`{"src":["dst","info"]}`
+    - å…¶ä¸­`info`ä¸å­˜åœ¨å¯ä»¥å†™æˆ`{"src":["dst"]}`æˆ–è€…`{"src":"dst"}`
 
-- **AddEndingAssistantPrompt**£º
-  - `True`£¨Ä¬ÈÏ£©£ºÌí¼Ó½áÊøÖúÊÖÌáÊ¾£¬¿ÉÄÜ½µµÍÄ£ĞÍ²»»Ø´ğµÄ¸ÅÂÊ£¬µ«»áÔö¼ÓÎ´ÃüÖĞ»º´æµÄtokenÊı
-  - `False`£º²»Ìí¼Ó½áÊøÖúÊÖÌáÊ¾£¬½ÚÊ¡token
+- **AddEndingAssistantPrompt**ï¼š
+  - `True`ï¼ˆé»˜è®¤ï¼‰ï¼šæ·»åŠ ç»“æŸåŠ©æ‰‹æç¤ºï¼Œå¯èƒ½é™ä½æ¨¡å‹ä¸å›ç­”çš„æ¦‚ç‡ï¼Œä½†ä¼šå¢åŠ æœªå‘½ä¸­ç¼“å­˜çš„tokenæ•°
+  - `False`ï¼šä¸æ·»åŠ ç»“æŸåŠ©æ‰‹æç¤ºï¼ŒèŠ‚çœtoken
 
-- **SplitByLine**£º
-  - `False`£¨Ä¬ÈÏ£©£º²»°´ĞĞ·Ö¸îÔ­Ê¼ÎÄ±¾
-  - `True`£º°´ĞĞ·Ö¸îÔ­Ê¼ÎÄ±¾
+- **SplitByLine**ï¼š
+  - `False`ï¼ˆé»˜è®¤ï¼‰ï¼šä¸æŒ‰è¡Œåˆ†å‰²åŸå§‹æ–‡æœ¬
+  - `True`ï¼šæŒ‰è¡Œåˆ†å‰²åŸå§‹æ–‡æœ¬
 
-- **MaxConcurrency**£º
-  - Ä¬ÈÏÖµ£º`1`
-  - ËµÃ÷£º×î´ó²¢·¢Êı
+- **MaxConcurrency**ï¼š
+  - é»˜è®¤å€¼ï¼š`1`
+  - è¯´æ˜ï¼šæœ€å¤§å¹¶å‘æ•°
 
-- **BatchTranslate**£º
-  - `False`£¨Ä¬ÈÏ£©£º½ûÓÃÅúÁ¿·­Òë
-  - `True`£ºÆôÓÃÅúÁ¿·­Òë
+- **BatchTranslate**ï¼š
+  - `False`ï¼ˆé»˜è®¤ï¼‰ï¼šç¦ç”¨æ‰¹é‡ç¿»è¯‘
+  - `True`ï¼šå¯ç”¨æ‰¹é‡ç¿»è¯‘
 
-- **MaxTranslationsPerRequest**£º
-  - Ä¬ÈÏÖµ£º`1`
-  - ËµÃ÷£ºÃ¿´ÎÇëÇóµÄ×î´ó·­ÒëÊıÁ¿£¬½öÔÚ `BatchTranslate` Îª `True` Ê±ÓĞĞ§
+- **MaxTranslationsPerRequest**ï¼š
+  - é»˜è®¤å€¼ï¼š`1`
+  - è¯´æ˜ï¼šæ¯æ¬¡è¯·æ±‚çš„æœ€å¤§ç¿»è¯‘æ•°é‡ï¼Œä»…åœ¨ `BatchTranslate` ä¸º `True` æ—¶æœ‰æ•ˆ
 
-- **CoroutineWaitCountBeforeRead**£º
-  - Ä¬ÈÏÖµ£º`150`
-  - ËµÃ÷£º¶ÁÈ¡ÏìÓ¦Á÷Ç°µÄĞ­³ÌµÈ´ı¼ÆÊı£¬½öÔÚ `UseThreadPool` Îª `False` Ê±ÓĞĞ§
+- **CoroutineWaitCountBeforeRead**ï¼š
+  - é»˜è®¤å€¼ï¼š`150`
+  - è¯´æ˜ï¼šè¯»å–å“åº”æµå‰çš„åç¨‹ç­‰å¾…è®¡æ•°ï¼Œä»…åœ¨ `UseThreadPool` ä¸º `False` æ—¶æœ‰æ•ˆ
 
-- **UseThreadPool**£º
-  - `True`£¨Ä¬ÈÏ£©£ºÊ¹ÓÃÏß³Ì³Ø
-  - `False`£º²»Ê¹ÓÃÏß³Ì³Ø
+- **MaxRetries**ï¼š
+  - é»˜è®¤å€¼ï¼š`2`
+  - è¯´æ˜ï¼šè¯·æ±‚å¤±è´¥æ—¶çš„æœ€å¤§é‡è¯•æ¬¡æ•°ã€‚é‡åˆ°429/503é”™è¯¯æ—¶ç«‹å³åœæ­¢é‡è¯•
 
-- **MinThreadCount**£º
-  - Ä¬ÈÏÖµ£º¿Õ
-  - ËµÃ÷£ºÏß³Ì³ØµÄ×îĞ¡Ïß³ÌÊı£¬Îª¿Õ»ò½âÎöÊ§°ÜÊ±Ê¹ÓÃ `Environment.ProcessorCount * 2`
+- **UseThreadPool**ï¼š
+  - `True`ï¼ˆé»˜è®¤ï¼‰ï¼šä½¿ç”¨çº¿ç¨‹æ± 
+  - `False`ï¼šä¸ä½¿ç”¨çº¿ç¨‹æ± 
 
-- **MaxThreadCount**£º
-  - Ä¬ÈÏÖµ£º¿Õ
-  - ËµÃ÷£ºÏß³Ì³ØµÄ×î´óÏß³ÌÊı£¬Îª¿Õ»ò½âÎöÊ§°ÜÊ±Ê¹ÓÃ `Environment.ProcessorCount * 4`
+- **MinThreadCount**ï¼š
+  - é»˜è®¤å€¼ï¼šç©º
+  - è¯´æ˜ï¼šçº¿ç¨‹æ± çš„æœ€å°çº¿ç¨‹æ•°ï¼Œä¸ºç©ºæˆ–è§£æå¤±è´¥æ—¶ä½¿ç”¨ `Environment.ProcessorCount * 2`
 
-- **Debug**£º
-  - `False`£¨Ä¬ÈÏ£©£º½ûÓÃµ÷ÊÔÄ£Ê½
-  - `True`£ºÆôÓÃµ÷ÊÔÄ£Ê½
+- **MaxThreadCount**ï¼š
+  - é»˜è®¤å€¼ï¼šç©º
+  - è¯´æ˜ï¼šçº¿ç¨‹æ± çš„æœ€å¤§çº¿ç¨‹æ•°ï¼Œä¸ºç©ºæˆ–è§£æå¤±è´¥æ—¶ä½¿ç”¨ `Environment.ProcessorCount * 4`
+
+- **Debug**ï¼š
+  - `False`ï¼ˆé»˜è®¤ï¼‰ï¼šç¦ç”¨è°ƒè¯•æ¨¡å¼
+  - `True`ï¼šå¯ç”¨è°ƒè¯•æ¨¡å¼

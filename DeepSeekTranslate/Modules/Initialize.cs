@@ -158,6 +158,7 @@ namespace DeepSeekTranslate
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxTranslationsPerRequest", "1"), out _maxTranslationsPerRequest) || _maxTranslationsPerRequest < 1) { _maxTranslationsPerRequest = 1; }
             if (!_batchTranslate) { _maxTranslationsPerRequest = 1; }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "CoroutineWaitCountBeforeRead", "150"), out _coroutineWaitCountBeforeRead) || _coroutineWaitCountBeforeRead < 0) { _coroutineWaitCountBeforeRead = 150; }
+            if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxRetries", "2"), out _maxRetries) || _maxRetries < 0) { _maxRetries = 1; }
             if (!bool.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "UseThreadPool", "True"), out _useThreadPool)) { _useThreadPool = true; }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MinThreadCount", ""), out _minThreadCount) || _minThreadCount <= 0) { _minThreadCount = Environment.ProcessorCount * 2; }
             if (!int.TryParse(context.GetOrCreateSetting<string>("DeepSeek", "MaxThreadCount", ""), out _maxThreadCount) || _maxThreadCount <= 0) { _maxThreadCount = Environment.ProcessorCount * 4; }

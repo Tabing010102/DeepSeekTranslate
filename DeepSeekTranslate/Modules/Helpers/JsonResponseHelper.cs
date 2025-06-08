@@ -1,6 +1,5 @@
-using System;
-using System.Text.RegularExpressions;
 using SimpleJSON;
+using System;
 using XUnity.Common.Logging;
 
 namespace DeepSeekTranslate.Modules.Helpers
