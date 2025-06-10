@@ -5,6 +5,8 @@ VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeepSeekTranslate", "DeepSeekTranslate\DeepSeekTranslate.csproj", "{9927471D-AE49-488D-9ADE-0D221E75862D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeepSeekTranslate.Tests", "DeepSeekTranslate.Tests\DeepSeekTranslate.Tests.csproj", "{0E2FECF5-2420-E332-8C60-EBE4D3EFDC8B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{9927471D-AE49-488D-9ADE-0D221E75862D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9927471D-AE49-488D-9ADE-0D221E75862D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9927471D-AE49-488D-9ADE-0D221E75862D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E2FECF5-2420-E332-8C60-EBE4D3EFDC8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E2FECF5-2420-E332-8C60-EBE4D3EFDC8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E2FECF5-2420-E332-8C60-EBE4D3EFDC8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E2FECF5-2420-E332-8C60-EBE4D3EFDC8B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
