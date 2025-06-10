@@ -1,7 +1,7 @@
 # DeepSeekTranslate
 
 DeepSeek API Translator for XUnity.AutoTranslator  
-[README](README.md) | [��������˵��](README_zh_CN.md)  
+[README](README.md) | [简体中文说明](README_zh_CN.md)  
 
 ## Warning
 
@@ -27,14 +27,14 @@ MaxTokensMode=Dynamic
 StaticMaxTokens=1024
 DynamicMaxTokensMultiplier=1.5
 DictMode=Full
-Dict={"��̫":["��̫","�����˹�"],"������":["����","Ů"]}
+Dict={"想太":["想太","男主人公"],"ダイヤ":["戴亚","女"]}
 AddEndingAssistantPrompt=True
 SplitByLine=False
 MaxConcurrency=4
 BatchTranslate=True
 MaxTranslationsPerRequest=5
 CoroutineWaitCountBeforeRead=150
-MaxRetries=1
+MaxRetries=2
 UseThreadPool=True
 MinThreadCount=
 MaxThreadCount=
