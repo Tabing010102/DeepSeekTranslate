@@ -34,7 +34,7 @@ MaxConcurrency=4
 BatchTranslate=True
 MaxTranslationsPerRequest=5
 CoroutineWaitCountBeforeRead=150
-MaxRetries=2
+MaxRetries=1
 UseThreadPool=True
 MinThreadCount=
 MaxThreadCount=
@@ -106,8 +106,8 @@ Debug=False
   - Description: Coroutine wait count before reading the response stream, only effective when `UseThreadPool` is `False`
 
 - **MaxRetries**:
-  - Default: `2`
-  - Description: Maximum retry attempts when request fails. Stops retrying immediately when encountering 429/503 error
+  - Default: `1`
+  - Description: Maximum retry attempts when request fails, if empty or parsing fails, `0` is used. Stops retrying immediately when encountering 429/503 error
 
 - **UseThreadPool**:
   - `True` (default): Use thread pool

@@ -34,7 +34,7 @@ MaxConcurrency=4
 BatchTranslate=True
 MaxTranslationsPerRequest=5
 CoroutineWaitCountBeforeRead=150
-MaxRetries=2
+MaxRetries=1
 UseThreadPool=True
 MinThreadCount=
 MaxThreadCount=
@@ -106,8 +106,8 @@ Debug=False
   - 说明：读取响应流前的协程等待计数，仅在 `UseThreadPool` 为 `False` 时有效
 
 - **MaxRetries**：
-  - 默认值：`2`
-  - 说明：请求失败时的最大重试次数。遇到429/503错误时立即停止重试
+  - 默认值：`1`
+  - 说明：请求失败时的最大重试次数，为空或解析失败时使用 `0`。遇到429/503错误时立即停止重试
 
 - **UseThreadPool**：
   - `True`（默认）：使用线程池
